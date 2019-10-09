@@ -1,0 +1,11 @@
+close all
+subplot(2,1,1)
+plot(pos(:,2))
+title('Encoder recorded position')
+xlabel('Time (ms)')
+ylabel('Pos (deg)')
+subplot(2,1,2)
+plot(vel(:,2))
+title('Encoder recorded velocity')
+xlabel('Time (ms)')
+ylabel('Vel (deg/s)')
