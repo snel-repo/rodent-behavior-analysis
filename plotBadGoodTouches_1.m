@@ -67,22 +67,23 @@ keyboard
 isess = numel(in);
 maxCueOn = max([cueOnset{isess}{:}]);
 align_offset = {};
+adjust_x = maxCueOn + 500;
 
 figure
 for itrial = 1: numel(allTouch{isess})
     y = itrial * ones(1, length(allTouch{isess}{itrial}));
     x = 1:length(allTouch{isess}{itrial});
     align_offset{isess}{itrial} = maxCueOn - cueOnset{isess}{itrial} + 500;
-    scatter(2*(x(allTouch{isess}{itrial} == 1) + align_offset{isess}{itrial}), y(allTouch{isess}{itrial} == 1), 'r', 'filled')
+    scatter((2*(x(allTouch{isess}{itrial} == 1) + align_offset{isess}{itrial} - adjust_x))/1000, y(allTouch{isess}{itrial} == 1), 'r', 'filled')
     hold on
-    scatter(2*(x(allTouch{isess}{itrial} == 2) + align_offset{isess}{itrial}), y(allTouch{isess}{itrial} == 2), 'g', 'filled')
+    scatter((2*(x(allTouch{isess}{itrial} == 2) + align_offset{isess}{itrial} - adjust_x))/1000, y(allTouch{isess}{itrial} == 2), 'g', 'filled')
     hold on
-    scatter(2*(x(cueOnset{isess}{itrial}) + align_offset{isess}{itrial}), itrial, 'k', '^')
+    scatter((2*(x(cueOnset{isess}{itrial}) + align_offset{isess}{itrial} - adjust_x))/1000, itrial, 'k', '^')
     hold on
-    scatter(2*align_offset{isess}{itrial}, itrial, 'k', 'd', 'filled')
+    scatter((2*(align_offset{isess}{itrial} - adjust_x))/1000, itrial, 'k', 'd', 'filled')
     hold on
     if ~isnan(cueTimeOut{isess}{itrial})
-        scatter(2*(x(cueTimeOut{isess}{itrial}) + align_offset{isess}{itrial}), itrial, 'b', 's', 'filled')
+        scatter((2*(x(cueTimeOut{isess}{itrial}) + align_offset{isess}{itrial} - adjust_x))/1000, itrial, 'b', 's', 'filled')
     end
 end
 set(gcf, 'Position', [0 0 1200 1000])
@@ -92,7 +93,7 @@ ax.XGrid = 'off';
 ax.YGrid = 'on';
 ax.XAxis.Exponent = 0;
 ylabel('trial')
-xlabel('time (ms)')
+xlabel('time (s)')
 axis tight
 %print(gcf, 'sess2_alignedToCueOnset_zoomed', '-dpng')
 
