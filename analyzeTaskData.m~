@@ -8,7 +8,7 @@
 
 close all
 clear all
-addpath('/snel/home/fzhu23/Projects/Rodent/rodent-behavior-analysis')
+addpath('/snel/home/fzhu23/Projects/Rodent/sldrt-code/Code/Analysis')
 addpath('/snel/home/fzhu23/Projects/Rodent/sldrt-code/Code/Analysis/Violinplot-Matlab-master')
 %clear all
 %% Pull rat names for user to select
@@ -36,8 +36,7 @@ subjdir = [basedir ratNames{ratInput_idx} filesep]; % create a new string with t
 sessionDatesDirAll = dir(subjdir);
 sessionDates = {sessionDatesDirAll.name};
 %sessionDates = sessionDates(3:end); % trim . and .. from filenames % if you want all
-%sessionDates = sessionDates(3:end);
-sessionDates = sessionDates(end-7:end);
+sessionDates = sessionDates(3:end);
 if ~isempty(find(strcmp(sessionDates, '.DS_Store') | strcmp(sessionDates, '._.DS_Store')))
     sessionDates(find(strcmp(sessionDates, '.DS_Store') | strcmp(sessionDates, '._.DS_Store'))) = [];
 end
@@ -50,7 +49,7 @@ fullRatDatePaths = strcat(tmpSubjPath, sessionDatesFullPath);
 [taskMode] = extractTaskModes(fullRatDatePaths, sessionDates);
 uniqueTaskMode = unique({taskMode(:).taskModeEnum});
 dateAndSaveTagString = strcat({taskMode(:).date}, ' : ', {taskMode(:).saveTag});
-%
+%%
 [taskInput_idx, ~] = listdlg('PromptString', 'Select a task for this animal to analyze', 'SelectionMode', 'single', 'ListString', uniqueTaskMode, 'ListSize', [300 300]);
 validSessions = strcmp(uniqueTaskMode{taskInput_idx}, {taskMode(:).taskModeEnum});
 [sessionInput_idx, ~] = listdlg('PromptString', 'Select sessions to analyze', 'ListString', dateAndSaveTagString(validSessions),  'ListSize', [300 300]);
@@ -82,8 +81,7 @@ switch uniqueTaskMode{taskInput_idx}
       %plotHoldTurnViolin(trials, summary);
       plot_rand_turn(trials, summary)
     case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL'}
-      %plotBadGoodTouches_1(trials)
-      plotDistribution(trials)
+      plotBadGoodTouches_1(trials)
       %plotBadTouches(trials)
       
         % trials = findHoldIdx(trials);
