@@ -82,8 +82,8 @@ switch uniqueTaskMode{taskInput_idx}
       %plotHoldTurnViolin(trials, summary);
       plot_rand_turn(trials, summary)
     case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL'}
-      %plotBadGoodTouches_1(trials)
-      plotDistribution(trials)
+      plotBadGoodTouches_1(trials, ratNames{ratInput_idx}, sessionTags{sessionInput_idx})
+      %plotDistribution(trials)
       %plotBadTouches(trials)
       
         % trials = findHoldIdx(trials);

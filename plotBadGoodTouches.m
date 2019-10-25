@@ -122,5 +122,6 @@ scatter(x(~all_isGoodTouch), zeroX(~all_isGoodTouch), 'r', 'filled')
 xticks(sessionTick);
 xticklabels({'Sess 1', 'Sess 2', 'Sess 3'})
 xlabel('Trials')
-title('Reaction Time for Touching across sessions')
+%title('Reaction Time for Touching across sessions')
 set(gcf, 'Position', [50, 200, 1800, 600])
+

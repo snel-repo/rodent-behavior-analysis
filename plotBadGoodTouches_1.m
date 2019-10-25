@@ -1,4 +1,4 @@
-function plotBadGoodTouches_1(in)
+function plotBadGoodTouches_1(in, name, session)
 %keyboard
 
 %%
@@ -60,6 +60,7 @@ for isess = 1:numel(in)
             cueTimeOut{isess}{x} = NaN;
         end
     end
+
 end
 keyboard
 %% plotting session details, aligned to cueOnset
@@ -97,7 +98,7 @@ xlabel('time (s)')
 axis tight
 %print(gcf, 'sess2_alignedToCueOnset_zoomed', '-dpng')
 
-
+title([name ' ' session])
 %% plotting session details, aligned to trial Start
 
 isess = numel(in);
@@ -130,6 +131,7 @@ axis tight
 %print(gcf, 'exampleSession', '-dpng')
 
 
+title([name ' ' session])
 %%
 
 
