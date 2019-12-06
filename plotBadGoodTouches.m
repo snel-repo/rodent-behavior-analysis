@@ -34,7 +34,7 @@ for isess = 1:numel(in)
         %    badTouch = 0;
         if sum(touchStatus{x}) ~= 0
             anyTouch{isess}(x) = true;
-        end
+        end}
         
         while tick <= length(trialState{x}) %loops through each row in the field
             if tick > 1 && trialState{x}(tick) ~= 3 %if the object is not displayed

@@ -8,8 +8,7 @@
 
 close all
 clear all
-addpath('/snel/home/fzhu23/Projects/Rodent/rodent-behavior-analysis')
-addpath('/snel/home/fzhu23/Projects/Rodent/sldrt-code/Code/Analysis/Violinplot-Matlab-master')
+addpath('/snel/home/jwang945/Projects/rodent-behavior-analysis')
 %clear all
 %% Pull rat names for user to select
 basedir = uigetdir([], 'Select rodent data directory (RATKNOBTASK)');
@@ -37,7 +36,8 @@ sessionDatesDirAll = dir(subjdir);
 sessionDates = {sessionDatesDirAll.name};
 %sessionDates = sessionDates(3:end); % trim . and .. from filenames % if you want all
 %sessionDates = sessionDates(3:end);
-sessionDates = sessionDates(end-7:end);
+%sessionDates = sessionDates(end-7:end);
+
 if ~isempty(find(strcmp(sessionDates, '.DS_Store') | strcmp(sessionDates, '._.DS_Store')))
     sessionDates(find(strcmp(sessionDates, '.DS_Store') | strcmp(sessionDates, '._.DS_Store'))) = [];
 end
@@ -47,6 +47,8 @@ sessionDatesFullPath = strcat(sessionDates,  tmpProtocolDir); % this combines th
 tmpSubjPath = cell(1, length(sessionDates));
 [tmpSubjPath{:}] = deal(subjdir); % creates a copy of the subject directory
 fullRatDatePaths = strcat(tmpSubjPath, sessionDatesFullPath);
+
+
 [taskMode] = extractTaskModes(fullRatDatePaths, sessionDates);
 uniqueTaskMode = unique({taskMode(:).taskModeEnum});
 dateAndSaveTagString = strcat({taskMode(:).date}, ' : ', {taskMode(:).saveTag});
@@ -78,10 +80,12 @@ switch uniqueTaskMode{taskInput_idx}
         %[trials, summary] = analyzeKnobTurn(trials, sessionTags(sessionInput_idx));
         %plotKnobTurn(trials, summary);
     case 'RAND_TURN_TWO_TARGETS'
-      [trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
+      %[trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
       %plotHoldTurnViolin(trials, summary);
-      plot_rand_turn(trials, summary)
+      plotTwoTargetTimeAnalysis(trials)
+      %plot_rand_turn(trials, summary)
     case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL'}
+      %plotTwoTargetTimeAnalysis(trials)
       plotBadGoodTouches_1(trials, ratNames{ratInput_idx}, sessionTags{sessionInput_idx})
       %plotDistribution(trials)
       %plotBadTouches(trials)
@@ -89,4 +93,9 @@ switch uniqueTaskMode{taskInput_idx}
         % trials = findHoldIdx(trials);
         % summary = analyzeKnobHold(trials, sessionTags(sessionInput_idx)); % creates a session summary for the holding task % FZ commented on 190930
         % plotHoldViolin(trials, summary); % creates plots for the holding task to analyze critical data % FZ commented on 190930
+    case 'KNOB_HOLD_AUTO_TURN'
+%         plotTenTrialsAutoTurnDebugger(trials)
+%         plotTenTrialsWithAutoTurnDebugger(trials)
+      plotTenTrialsWithAutoTurnDebuggerZoomedIn(trials)
+        
 end

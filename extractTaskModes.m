@@ -50,6 +50,8 @@ for i = 1 :length(in)
               taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_RAND_TURN';
             case 11
               taskModes(structIdx).taskModeEnum = 'RAND_TURN_TWO_TARGETS';
+            case 12
+              taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_AUTO_TURN';
         end
         structIdx = structIdx + 1;
     end
