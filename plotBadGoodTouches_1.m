@@ -24,7 +24,7 @@ for isess = 1:numel(in)
         trialState{i} = allTrials(i).state;
         failType{i} = allTrials(i).flagFail;
     end
-    %keyboard
+    %%keyboard
     %%
     allTouch{isess} = {};
     goodBadTouches{isess} = {};
@@ -63,6 +63,11 @@ for isess = 1:numel(in)
 
 end
 keyboard
+% for ii = 1:(length(in.trials))
+%     hold on
+%     plot(in.trials(ii).)
+% end
+% keyboard
 %% plotting session details, aligned to cueOnset
 
 isess = numel(in);
@@ -156,9 +161,8 @@ ylabel('trial')
 xlabel('touch')
 print(gcf, 'exampleSession', '-dpng')
         
-
-%keyboard
 %% plot session summary
+
 figure
 baseX = [1,2,3];
 g = cell(3,1);
@@ -189,7 +193,7 @@ xticklabels({'Sess 1', 'Sess 2', 'Sess 3', 'Sess 4'})
 
 
 
-keyboard
+%keyboard
 %%
 all_badTouches = cat(2, badTouch{:});
 all_anyTouches = cat(2, anyTouch{:});

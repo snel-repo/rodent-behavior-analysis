@@ -7,6 +7,9 @@ for i = 1 :length(in)
     if ~isempty(find(strcmp(filenames, '.DS_Store') | strcmp(filenames, '._.DS_Store')))
         filenames(find(strcmp(filenames, '.DS_Store') | strcmp(filenames, '._.DS_Store'))) = [];
     end
+    if length(filenames)==0
+        error('No files were found in the specified directory, or the directory does not exist.')
+    end
     for j = 1:length(filenames)
         %         if ~strcmp(filenames{j}, '.DS_Store')
         tmpPath = [in{i} filenames{j} filesep];
@@ -50,6 +53,8 @@ for i = 1 :length(in)
               taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_RAND_TURN';
             case 11
               taskModes(structIdx).taskModeEnum = 'RAND_TURN_TWO_TARGETS';
+            case 12
+              taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_AUTO_TURN';
         end
         structIdx = structIdx + 1;
     end
