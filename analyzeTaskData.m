@@ -36,7 +36,7 @@ sessionDatesDirAll = dir(subjdir);
 sessionDates = {sessionDatesDirAll.name};
 %sessionDates = sessionDates(3:end); % trim . and .. from filenames % if you want all
 %sessionDates = sessionDates(3:end);
-%sessionDates = sessionDates(end-7:end);
+sessionDates = sessionDates(end-1:end);
 
 if ~isempty(find(strcmp(sessionDates, '.DS_Store') | strcmp(sessionDates, '._.DS_Store')))
     sessionDates(find(strcmp(sessionDates, '.DS_Store') | strcmp(sessionDates, '._.DS_Store'))) = [];
@@ -62,7 +62,7 @@ selectedTaskMode = selectedTaskMode(sessionInput_idx);
 selectedSessions = {selectedTaskMode(:).path};
 trials = selectedSessionsToTrials(selectedSessions);
 
-%% switch analysis based on selected taskMode
+    %% switch analysis based on selected taskMode
 switch uniqueTaskMode{taskInput_idx}
     case 'LOWER_THRESHOLD'
         trials = analyzeTurnAttempts(trials);
@@ -81,9 +81,11 @@ switch uniqueTaskMode{taskInput_idx}
         %plotKnobTurn(trials, summary);
     case 'RAND_TURN_TWO_TARGETS'
       %[trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
-      %plotHoldTurnViolin(trials, summary);
-      plotTwoTargetTimeAnalysis(trials)
+      %pl}otHoldTurnViolin(trials, summary);
+      %plotTwoTargetTimeAnalysis(trials)
       %plot_rand_turn(trials, summary)
+      %plotTenTrialsWithAutoTurnDebuggerZoomedIn(trials)
+      singleTrialAutoTurnDebugger(trials)
     case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL'}
       %plotTwoTargetTimeAnalysis(trials)
       plotBadGoodTouches_1(trials, ratNames{ratInput_idx}, sessionTags{sessionInput_idx})
@@ -94,8 +96,10 @@ switch uniqueTaskMode{taskInput_idx}
         % summary = analyzeKnobHold(trials, sessionTags(sessionInput_idx)); % creates a session summary for the holding task % FZ commented on 190930
         % plotHoldViolin(trials, summary); % creates plots for the holding task to analyze critical data % FZ commented on 190930
     case 'KNOB_HOLD_AUTO_TURN'
-%         plotTenTrialsAutoTurnDebugger(trials)
+%        plotTwoTargetTimeAnalysis(trials)
+%       plotTenTrialsAutoTurnDebugger(trials)
 %         plotTenTrialsWithAutoTurnDebugger(trials)
-      plotTenTrialsWithAutoTurnDebuggerZoomedIn(trials)
+       plotTenTrialsWithAutoTurnDebuggerZoomedIn(trials)
+%       singleTrialAutoTurnDebugger(trials)
         
 end

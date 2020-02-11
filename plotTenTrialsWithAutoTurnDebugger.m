@@ -70,70 +70,70 @@ for i = 1:numel(allTrials)
        end
        switch index
            case 1
-               plot(ax1,allTrials(i).touchFilt);
+               plot(ax1,allTrials(i).touchRaw);
                hold(ax1,'on');
                plot(ax1,allTrials(i).touchBaseline);
                line(ax1,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax1,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax1,"Trial No. " + i + " " + hit);
            case 2
-               plot(ax2,allTrials(i).touchFilt);
+               plot(ax2,allTrials(i).touchRaw);
                hold(ax2,'on');
                plot(ax2,allTrials(i).touchBaseline);
                line(ax2,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax2,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax2,"Trial No. " + i + " " + hit);
            case 3
-               plot(ax3,allTrials(i).touchFilt);
+               plot(ax3,allTrials(i).touchRaw);
                hold(ax3,'on');
                plot(ax3,allTrials(i).touchBaseline);
                line(ax3,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax3,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax3,"Trial No. " + i + " " + hit);
            case 4
-               plot(ax4,allTrials(i).touchFilt);
+               plot(ax4,allTrials(i).touchRaw);
                hold(ax4,'on');
                plot(ax4,allTrials(i).touchBaseline);
                line(ax4,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax4,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax4,"Trial No. " + i + " " + hit);
            case 5
-               plot(ax5,allTrials(i).touchFilt);
+               plot(ax5,allTrials(i).touchRaw);
                hold(ax5,'on');
                plot(ax5,allTrials(i).touchBaseline);
                line(ax5,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax5,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax5,"Trial No. " + i + " " + hit);
            case 6
-               plot(ax6,allTrials(i).touchFilt);
+               plot(ax6,allTrials(i).touchRaw);
                hold(ax6,'on');
                plot(ax6,allTrials(i).touchBaseline);
                line(ax6,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax6,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax6,"Trial No. " + i + " " + hit);
            case 7
-               plot(ax7,allTrials(i).touchFilt);
+               plot(ax7,allTrials(i).touchRaw);
                hold(ax7,'on');
                plot(ax7,allTrials(i).touchBaseline);
                line(ax7,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax7,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax7,"Trial No. " + i + " " + hit);
            case 8
-               plot(ax8,allTrials(i).touchFilt);
+               plot(ax8,allTrials(i).touchRaw);
                hold(ax8,'on');
                plot(ax8,allTrials(i).touchBaseline);
                line(ax8,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax8,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax8,"Trial No. " + i + " " + hit);
            case 9
-               plot(ax9,allTrials(i).touchFilt);
+               plot(ax9,allTrials(i).touchRaw);
                hold(ax9,'on');
                plot(ax9,allTrials(i).touchBaseline);
                line(ax9,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
                line(ax9,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
                title(ax9,"Trial No. " + i + " " + hit);
            case 10
-               plot(ax10,allTrials(i).touchFilt);
+               plot(ax10,allTrials(i).touchRaw);
                hold(ax10,'on');
                plot(ax10,allTrials(i).touchBaseline);
                line(ax10,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');

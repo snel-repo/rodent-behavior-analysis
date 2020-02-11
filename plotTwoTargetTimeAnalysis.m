@@ -78,10 +78,10 @@ ylim(ax3,[-yLim yLim]);
 ylim(ax4,[-yLim yLim]);
 ylim(ax5,[-yLim yLim]);
 
-%initialize video
-myVideo = VideoWriter(allTrials(1).subject(1) + "_" + date + "_" + allTrials(1).saveTag + ".mp4"); %open video file
-myVideo.FrameRate = 10;  %can adjust this, 5 - 10 works well for me
-open(myVideo)
+%create video
+%myVideo = VideoWriter(convertStringsToChars(allTrials(1).subject(1) + "_" + date + "_" + allTrials(1).saveTag + ".mp4")); %open video file
+%myVideo.FrameRate = 0.002;  %can adjust this, 5 - 10 works well for me
+%open(myVideo)
 
 % draw holdPosMax lines
 line(ax1,[0 xLim],[holdPosMax holdPosMax],'LineStyle','--','Color','blue');
@@ -154,6 +154,8 @@ for i = 1:numel(allTrials)
     %now use firstTouchIndex and endTouchIndex to format pos vector
     knobPos{i} = knobPos{i}(firstTouchIndex : endTouchIndex);
 end
+%create a frame counter
+fcount = 1;
 %now have knobPos aligned to initial touch and the pos ends after the rat lets go!
 for i = 1:numel(knobPos)
     %keyboard
@@ -163,8 +165,8 @@ for i = 1:numel(knobPos)
             addpoints(an1,x,knobPos{i}(x));
             drawnow limitrate
             pause(pauseTime);
-            frame = getframe(gcf); %get frame
-            writeVideo(myVideo, frame);
+            %frame(fcount) = getframe(gcf); %get frame
+            %fcount = fcount+1;
         end
     else
         %CASE 2,3,4, or 5
@@ -174,8 +176,8 @@ for i = 1:numel(knobPos)
                 addpoints(an2,x,knobPos{i}(x));
                 drawnow limitrate
                 pause(pauseTime);
-                frame = getframe(gcf); %get frame
-                writeVideo(myVideo, frame);
+                %frame(fcount) = getframe(gcf); %get frame
+                %fcount = fcount+1;
             end
         else
             %CASE 3,4, or 5
@@ -193,8 +195,8 @@ for i = 1:numel(knobPos)
                     addpoints(an4,x,knobPos{i}(x));
                     drawnow limitrate
                     pause(pauseTime);
-                    frame = getframe(gcf); %get frame
-                    writeVideo(myVideo, frame);
+                    %frame(fcount) = getframe(gcf); %get frame
+                    %fcount = fcount+1;
                 end
             else
                 %CASE 3 or 5
@@ -204,8 +206,8 @@ for i = 1:numel(knobPos)
                         addpoints(an3,x,knobPos{i}(x));
                         drawnow limitrate
                         pause(pauseTime);
-                        frame = getframe(gcf); %get frame
-                        writeVideo(myVideo, frame);
+                        %frame(fcount) = getframe(gcf); %get frame
+                        %fcount = fcount+1;
                     end
                 else
                     %CASE 5
@@ -217,13 +219,15 @@ for i = 1:numel(knobPos)
                         addpoints(an5,x,knobPos{i}(x));
                         drawnow limitrate
                         pause(pauseTime);
-                        frame = getframe(gcf); %get frame
-                        writeVideo(myVideo, frame);
+                        %frame(fcount) = getframe(gcf); %get frame
+                        %fcount = fcount+1;
                     end
                 end
             end
         end
     end
 end
-close(myVideo) 
+display('done')
+%writeVideo(myVideo,frame);
+%close(myVideo) 
 end

@@ -6,6 +6,7 @@ session = in(1);
 
 %now have session, want to get all the trials in session
 allTrials = session.trials;
+
 %so, first make figure and subplots
 figure('Name',"TenTrialsAutoTurnDebugger" + allTrials(1).subject);
 set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
@@ -50,6 +51,7 @@ index = 0;
 %make a for-loop to access each trial
 for i = 1:numel(allTrials)
    touchStatus{i} = allTrials(i).touchStatus;
+   touchStatusNormalized{i} = allTrials(i).touchStatus;
    if any(touchStatus{i} == 1)
        %there was a touc}h in this trial, so we want to plot it
        index = index + 1;
@@ -59,12 +61,18 @@ for i = 1:numel(allTrials)
        else
            hit = 'Fail';
        end
+      minY = min(allTrials(i).touchFilt);
+      maxY = max(allTrials(i).touchFilt);   
+      
+      touchStatusNormalized{i}(touchStatusNormalized{i}==1) = minY + 44;
+      touchStatusNormalized{i}(touchStatusNormalized{i}==0) = minY + 2;
        
        switch index
            case 1
                plot(ax1,allTrials(i).touchFilt);
                hold(ax1,'on');
                plot(ax1,allTrials(i).touchBaseline);
+               plot(ax1, touchStatusNormalized{i});
                title(ax1,"Trial No. " + i + " " + hit);
            case 2
                plot(ax2,allTrials(i).touchFilt);

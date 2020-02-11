@@ -1,4 +1,6 @@
 function [taskModes] = extractTaskModes(in, dates)
+
+%%
 structIdx = 1;
 for i = 1 :length(in)
     filenames = dir(in{i});
@@ -17,6 +19,7 @@ for i = 1 :length(in)
             trialnames(find(strcmp(trialnames, '.DS_Store') | strcmp(trialnames, '._.DS_Store'))) = [];
         end
         tmpData = load([tmpPath trialnames{1}]);
+
         taskModes(structIdx).taskMode = tmpData.trial.taskMode;
         taskModes(structIdx).path = tmpPath;
         taskModes(structIdx).date = dates{i};
