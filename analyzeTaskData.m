@@ -163,15 +163,16 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
             %[trials, summary] = analyzeKnobTurn(trials, sessionTags(sessionInput_idx));
             %plotKnobTurn(trials, summary);
         case 'RAND_TURN_TWO_TARGETS'
-            plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
+          %plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
           %[trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
           %plotHoldTurnViolin(trials, summary);
         plot_rand_turn(trials, summary)
         case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
-          plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
-          %plotDistribution(trials)
+          %plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
+          %plotDistribution(trials
           %plotBadTouches(trials)
-
+          %plotHoldPosMaxAnalysis(trials)
+          plotFailFlag16Overlay(trials)
             % trials = findHoldIdx(trials);
             % summary = analyzeKnobHold(trials, sessionTags(sessionInput_idx)); % creates a session summary for the holding task % FZ commented on 190930
             % plotHoldViolin(trials, summary); % creates plots for the holding task to analyze critical data % FZ commented on 190930
