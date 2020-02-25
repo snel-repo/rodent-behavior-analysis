@@ -59,7 +59,7 @@ for i = 1:numel(allTrials)
        index = index + 1;
        %want to plot vertical lines for where motor current starts
        %and stops
-       currentStartIndex = find(motorCurrent{i} == 30,1);
+       currentStartIndex = find(motorCurrent{i} ~= 0,1);
        currentStopIndex = find(motorCurrent{i}(currentStartIndex : end) == 0,1) + currentStartIndex;
        
        %since zoomed in, what to format the vectors for touchFilt and

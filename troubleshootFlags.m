@@ -18,6 +18,11 @@ end
     plot(dThresh*ones(1,length(baseLine)),'LineStyle','--'); 
     
     subplot(5,1,4); plot(in.trials(currentTrial).state); title('Trial state, this trial')
+    hold('on'); 
+    currentStartIndex = find(in.trials(currentTrial).motorCurrent ~= 0,1);
+    currentStopIndex = find(in.trials(currentTrial).motorCurrent(currentStartIndex : end) == 0,1) + currentStartIndex - 2;
+    line([currentStartIndex currentStartIndex], [0 5],'Color','magenta');
+    line([currentStopIndex currentStopIndex], [0 5],'Color','magenta');
     
     subplot(5,1,5); plot(in.trials(currentTrial).pos); title('Knob Position (blue) and Velocity (orange), this trial');
     yyaxis right; plot(in.trials(currentTrial).velRaw)
@@ -31,5 +36,4 @@ end
     h_patch = patch(hilite, y, 'green', 'FaceAlpha', 0.5, 'LineStyle', ':');
     keyboard
     
-end
 end
