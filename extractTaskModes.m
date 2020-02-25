@@ -1,5 +1,8 @@
 function [taskModes] = extractTaskModes(in, dates)
 structIdx = 1;
+if length(in)==0
+    error('The input "in" structure was empty')
+end
 for i = 1 :length(in)
     filenames = dir(in{i});
     filenames = {filenames.name};
@@ -19,11 +22,21 @@ for i = 1 :length(in)
         if ~isempty(find(strcmp(trialnames, '.DS_Store') | strcmp(trialnames, '._.DS_Store')))
             trialnames(find(strcmp(trialnames, '.DS_Store') | strcmp(trialnames, '._.DS_Store'))) = [];
         end
+        
         tmpData = load([tmpPath trialnames{1}]);
-        taskModes(structIdx).taskMode = tmpData.trial.taskMode;
+        
+        try % remove any blank taskmode trials
+            taskModes(structIdx).taskMode = tmpData.trial.taskMode;
+        catch
+            warning('A trial does not have a taskMode, will set to KNOB_HOLD_AUTO_TURN. If different taskMode, be sure to change');
+            taskModes(structIdx).taskMode = -1; %set to -1, so will see all trials that had no taskMode set to 0 for debug purposes
+            tmpData.trial.taskMode = 12;
+        end
+        
         taskModes(structIdx).path = tmpPath;
         taskModes(structIdx).date = dates{i};
         taskModes(structIdx).saveTag = filenames{j};
+        
         switch tmpData.trial.taskMode
             case 0
                 taskModes(structIdx).taskModeEnum = 'TARGET_WINDOW';

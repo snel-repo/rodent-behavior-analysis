@@ -92,7 +92,7 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
     end
     
     if nargin == 0 % Original Mode
-        sessionDates = sessionDates(end-2:end); % gets the past week worth of date files
+        sessionDates = sessionDates(end-4:end); % gets the past week worth of date files
     elseif nargin == 2 % PNG Mode for multi-plotting -- SeanOC
         sessionDates = sessionDates(end-numSessEachRat+1:end); % get desired amount of recent files
     end
@@ -108,14 +108,16 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
     fullRatDatePaths = strcat(tmpSubjPath, sessionDatesFullPath);
     fullRatDatePathsTrunc = fullRatDatePaths(~cellfun(@(x) any(isletter(x)),sessionDatesFullPath)); %check for any letters in filenames, cause warning
     if any(isletter([sessionDatesFullPath{:}]))
-        warning('The following folders were removed because their folders contained letters.')
+        warning('The following folders were de-selected because their folders contained letters. (This would''ve caused another error)')
         disp(sessionDatesFullPath(cellfun(@(x) any(isletter(x)),sessionDatesFullPath)))
         sessionDates = sessionDates(1:length(fullRatDatePathsTrunc));
-        if isempty(sessionDatesFullPath)
-            error('Some files contained letters, and were removed by cellfun, this empied the list of rat folders')
+        if isempty(sessionDates)
+            warning('Some files contained letters, and were de-selected by cellfun, this empied the list of rat folders')
         end
     end
-
+    if isempty(fullRatDatePathsTrunc)
+        error('The only selected folder could not be loaded, and was de-selected. Quitting.')
+    end
     [taskMode] = extractTaskModes(fullRatDatePathsTrunc, sessionDates);
     uniqueTaskMode = unique({taskMode(:).taskModeEnum});
     dateAndSaveTagString = strcat({taskMode(:).date}, ' : ', {taskMode(:).saveTag});
