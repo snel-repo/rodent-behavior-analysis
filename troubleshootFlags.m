@@ -1,15 +1,13 @@
 function [allFailFlags]=troubleshootFlags(in,currentTrial,plotFlag)
 allFailFlags = [in.trials.flagFail]; currentFailFlag=allFailFlags(currentTrial) %intentionally displayed
 if plotFlag == true
-    
     [filtData, baseLine] = touchFiltVariableHandler(in,currentTrial);
+end
     
-    miny = min(min([filtData baseLine]));
+    miny = min(min([filtData baseLine])); % get maxes and mins for ploting limits
     maxy = max(max([filtData baseLine]));
     
-    dThresh=10; difference = baseLine-filtData;
-    maxydiff = max([difference; dThresh]);
-    minydiff = min([difference; dThresh]);
+    dThresh=10; difference = baseLine-filtData; % define threshold, get difference array
     
     subplot(5,1,2);
     plot(in.trials(currentTrial).touchStatus); ylim([0,1.1]); title('Touch Status, this trial')
@@ -26,7 +24,7 @@ if plotFlag == true
     
     subplot(5,1,1);
     H = histogram(allFailFlags,[-0.5:1:19.5]); title('All fail codes from entire session, current fail code group highlighted')
-    uniqueFails = unique(allFailFlags); 
+    uniqueFails = unique(allFailFlags); % get unique flags
     hilite = H.BinEdges(currentFailFlag+1:currentFailFlag+2);
     hilite = [hilite fliplr(hilite)];
     y = [0 0 repmat(H.Values(currentFailFlag+1), 1, 2)];
