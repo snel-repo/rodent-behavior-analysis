@@ -10,8 +10,8 @@ allTrials = session.trials;
 trialIndex = input('Please select Trial Number: ');
 singleTrial = allTrials(trialIndex);
 keyboard
-minY = min(singleTrial.touchFilt);
-maxY = max(singleTrial.touchFilt);
+minY = min(singleTrial.touchFiltEx);
+maxY = max(singleTrial.touchFiltEx);
 %want to plot vertical lines for where motor current starts
 %and stops
 currentStartIndex = find(singleTrial.motorCurrent == 30,1);
@@ -33,9 +33,9 @@ ax1 = subplot(4,1,1);
 ax3 = subplot(4,1,3);
 ax4 = subplot(4,1,4);
 
-plot(ax1,singleTrial.touchFilt);
+plot(ax1,singleTrial.touchFiltEx);
 hold(ax1, 'on');
-plot(ax1,singleTrial.touchBaseline);
+plot(ax1,singleTrial.touchBaselineEx);
 line(ax1,[currentStartIndex currentStartIndex], [minY maxY],'Color','magenta');
 line(ax1,[currentStopIndex currentStopIndex], [minY maxY],'Color','magenta');
 title(ax1,"Trial No. " + trialIndex + " " + hit + " " + singleTrial.flagFail);
