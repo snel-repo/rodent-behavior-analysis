@@ -92,7 +92,7 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
     end
     
     if nargin == 0 % Original Mode
-        sessionDates = sessionDates(end-4:end); % gets the past week worth of date files
+        sessionDates = sessionDates(end-4:end); % gets the past couple days worth of date files
     elseif nargin == 2 % PNG Mode for multi-plotting -- SeanOC
         sessionDates = sessionDates(end-numSessEachRat+1:end); % get desired amount of recent files
     end
@@ -170,11 +170,11 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
           %plotHoldTurnViolin(trials, summary);
         plot_rand_turn(trials, summary)
         case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
-          %plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
+          plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
           %plotDistribution(trials
           %plotBadTouches(trials)
           %plotHoldPosMaxAnalysis(trials)
-          plotFailFlag16Overlay(trials)
+          %plotFailFlag16Overlay(trials)
             % trials = findHoldIdx(trials);
             % summary = analyzeKnobHold(trials, sessionTags(sessionInput_idx)); % creates a session summary for the holding task % FZ commented on 190930
             % plotHoldViolin(trials, summary); % creates plots for the holding task to analyze critical data % FZ commented on 190930

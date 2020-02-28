@@ -18,7 +18,7 @@ for isess = 1:numel(in)
     allTrials = oneSession.trials;
     touchStatus = {};
     trialState = {};
-    %keyboard
+    keyboard
     for i = 1:numel(allTrials)
         touchStatus{i} = allTrials(i).touchStatus;
         trialState{i} = allTrials(i).state;
@@ -39,7 +39,7 @@ for isess = 1:numel(in)
         tick = 2;
         %    badTouch = 0;
         while tick <= length(trialState{x}) %loops through each row in the field
-            if touchStatus{x}(tick) == 1 && touchStatus{x}(tick - 1) == 0 %if it is the final tick of a touch
+            if touchStatus{x}(tick) == 1 && touchStatus{x}(tick - 1) == 0 %if it is the first tick of a touch        
                 if trialState{x}(tick) ~= 3
                     allTouch{isess}{x}(tick) = 1;
                 else
@@ -62,7 +62,7 @@ for isess = 1:numel(in)
     end
 
 end
-keyboard
+%keyboard
 % for ii = 1:(length(in.trials))
 %     hold on
 %     plot(in.trials(ii).)
@@ -104,6 +104,8 @@ axis tight
 %print(gcf, 'sess2_alignedToCueOnset_zoomed', '-dpng')
 
 title([name ' ' session])
+
+return;
 %% plotting session details, aligned to trial Start
 
 isess = numel(in);
