@@ -1,6 +1,11 @@
 function [filtData, baseLine] = touchFiltVariableHandler(in,currentTrial,touchTypeFlag)
+% This function is for compatibility with previously logged data (before 
+% Feb 2020). We recently began calculating and saving exponential moving 
+% averaged touch data and median filtered data. Before we only saved EMA 
+% data. This function checks for new format, and if an error arises, 
+% reverts to original format. Sean O.
 
-try    
+try
     switch touchTypeFlag
         case 0
             filtData = in.trials(currentTrial).touchFiltEx;
