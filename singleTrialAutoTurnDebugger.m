@@ -14,7 +14,7 @@ minY = min(singleTrial.touchFiltEx);
 maxY = max(singleTrial.touchFiltEx);
 %want to plot vertical lines for where motor current starts
 %and stops
-currentStartIndex = find(singleTrial.motorCurrent == 30,1);
+currentStartIndex = find(singleTrial.motorCurrent ~= 0,1);
 currentStopIndex = find(singleTrial.motorCurrent(currentStartIndex : end) == 0,1) + currentStartIndex;
 
 if (singleTrial.hitTrial == 1)

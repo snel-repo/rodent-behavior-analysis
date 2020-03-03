@@ -4,8 +4,9 @@ function plotFailFlag16Overlay(in)
 
 %variables to adjust if needed
 
-minHoldTime = 25;
+minHoldTime = 30;
 holdPosMax = 6;
+
 %only use 1 for now to plot one session
 session = in(1);
 
@@ -14,16 +15,16 @@ allTrials = session.trials;
 %so, first make figure and subplots
 figure('Name',"HoldPosMax Analysis " + allTrials(1).subject);
 set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
-
+hold('on');
 touchStatus = {};
 kinematicsAligned = {};
-%hodlPosMax and minHoldTime lines
+xlabel('Ticks');
+ylabel('Position');
+title('Analysis of Rat Turning Behavior - black is catchTrial');
 line([minHoldTime minHoldTime], [-holdPosMax-2 holdPosMax+2],'Color','magenta');
-hold('on');
-line([0 minHoldTime+5], [-holdPosMax -holdPosMax], 'Color','green');
-line([0 minHoldTime+5], [holdPosMax holdPosMax], 'Color','green');
+line([0 minHoldTime+120], [-holdPosMax -holdPosMax], 'Color','red');
+line([0 minHoldTime+120], [holdPosMax holdPosMax], 'Color','red', 'HandleVisibility', 'off');
 
-index = 0;
 for i = 1:numel(allTrials)
     touchStatus{i} = allTrials(i).touchStatus;
     state{i} = allTrials(i).state;
@@ -32,21 +33,38 @@ for i = 1:numel(allTrials)
     touchStatusModified{i} = touchStatus{i}(state3Start:state3End);
     
     if (allTrials(i).flagFail == 16)  
-       if (allTrials(i).hitTrial == 1)
-           hit = 'Hit';
-       else
-           hit = 'Fail';
-       end
- 
        %want to align them to first touch
        firstTouch = find(touchStatusModified{i}, 1) + state3Start - 1;
        endOfHoldingPeriod = firstTouch + minHoldTime;
        
        endXForKine = endOfHoldingPeriod + 20;
        kinematicsAligned{i} = allTrials(i).pos(firstTouch:endXForKine);
-       keyboard
-       plot(kinematicsAligned{i}, 'Color','blue');
-       index = index + 1;
+       if (allTrials(i).catchTrialFlag)
+           plot(kinematicsAligned{i}, 'Color','black');
+       else
+           plot(kinematicsAligned{i}, 'Color','cyan');
+       end
+    end
+    if (allTrials(i).flagFail == 0)
+        %want to align them to first touch
+       firstTouch = find(touchStatusModified{i}, 1) + state3Start - 1;
+       endOfHoldingPeriod = firstTouch + minHoldTime;
+       
+       endXForKine = endOfHoldingPeriod + 120;
+       kinematicsAligned{i} = allTrials(i).pos(firstTouch:endXForKine);
+       if (allTrials(i).catchTrialFlag)
+           plot(kinematicsAligned{i}, 'Color','black');
+       else
+           plot(kinematicsAligned{i}, 'Color','green');
+       end
+       currentStartIndex = find(allTrials(i).motorCurrent ~= 0,1);
+       try
+       line([currentStartIndex-firstTouch currentStartIndex-firstTouch], [-holdPosMax-2 holdPosMax+2], 'Color', 'blue');
+       catch
+       end
     end
 end
+    legend('minHoldTime', 'holdPosMax', 'failFlag16Kinematics', 'failFlag0Kinematics', 'motorCurrentStart');
+    
+    
 end
