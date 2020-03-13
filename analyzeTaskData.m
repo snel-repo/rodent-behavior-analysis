@@ -92,7 +92,7 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
     end
     
     if nargin == 0 % Original Mode
-        sessionDates = sessionDates(end-4:end); % gets the past couple days worth of date files
+        sessionDates = sessionDates(end-1:end); % gets the past couple days worth of date files
     elseif nargin == 2 % PNG Mode for multi-plotting -- SeanOC
         sessionDates = sessionDates(end-numSessEachRat+1:end); % get desired amount of recent files
     end
@@ -144,9 +144,6 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
         for gg = modCntr
         end
     end
-    %skeyboard
-    %trials = selectedSessionsToTrials(selectedSessions);
-
     %% choose analysis based on selected taskMode
     switch uniqueTaskMode{taskInput_idx}
         case 'LOWER_THRESHOLD'
@@ -171,7 +168,7 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
         plot_rand_turn(trials, summary)
         case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
           plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
-          %plotDistribution(trials
+          %plotDistribution(trials)
           %plotBadTouches(trials)
           %plotHoldPosMaxAnalysis(trials)
           %plotFailFlag16Overlay(trials)

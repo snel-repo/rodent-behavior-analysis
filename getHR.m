@@ -1,6 +1,6 @@
 function [HR,trialCount] = getHR(in,varargin)
 % [HR] = getHR(in)  OR  [HR] = getHR(in,indexRange)
-% input the in parameter from analyzeTaskData, output the hitrate
+% input the 'trials' struct from analyzeTaskData, output the hitrate
 % (optional) input the indexRange for inspection [as, a, vector]
 
 allHitFlags = [in.trials.hitTrial];
