@@ -10,7 +10,7 @@ for i = 1:length(in)
     trialCell = cell(length(files), 1);
     
     v = ver; % check matlab for parallel toolbox
-    if any(strcmp('Parallel Computing Toolbox', {v.Name}))
+    if any(strcmp('Parallel Computing Toolbox', {v.Name})) % this speeds up execution by 50-70% (takes about 60% of the time to run)
         parfor iF = 1:length(files) % use parallel for loop 
             data = load([in{i} files(iF).name], 'trial'); % this is the most time consuming piece of code
             trialCell{iF} = data.trial;

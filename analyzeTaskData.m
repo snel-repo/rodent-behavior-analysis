@@ -1,17 +1,34 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Author: Tony Corsten (tony.corsten93@gmail.com), Feng Zhu, and Sean O'Connell
-% Date: 9/11/2018, (Sean on 11/6/19)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Authors: Tony Corsten, Feng Zhu, and Sean O'Connell
 % Purpose: this is an automated analysis suite that takes rat name and
 % pulls available tasks that rat has completed. You can then select one or
 % multiple sessions to produce task-related results and plots.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Function Usage:   analyzeTaskData() OR
-%                   analyzeTaskData('xy') <-- for rats X and Y, default number of sessions is 1
-%                   analyzeTaskData('xyz',numSessEachRat) <--for rats X, Y, and Z
-%                   analyzeTaskData('xyz',numSessEachRat,pngOutputEnable)
-%                   ^^^ set pngOutputEnable to 1 to skip plotting and ^^^
-%                       generate png's
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Function Usage:0) analyzeTaskData() <-this will plot with traditional GUI
+%
+%                1) analyzeTaskData('xy') <-- for rats X and Y (default number of sessions is 1)
+%
+%                2) analyzeTaskData('ZX',numSessEachRat) <--for rats X and Z
+%
+%                3) analyzeTaskData('vwxy',numSessEachRat,plotStr) <--
+%                     --> plotStr can equal 'scat','kin','cyc', or 'png'
+%                         ^^^ set plotStr to 'png' to skip plotting and ^^^
+%                         generate png's of the default plot type (scatter)
+%
+%                4) analyzeTaskData(('xyz',numSessEachRat,plotStr,pngFlag)) <--
+%                     --> pngFlag can be set to 'png' this will create a
+%                         png in the appropriate folder for the selected
+%                         plot type (chosen with plotStr)
+%
+% By default, PNGs are saved to:
+% /snel/share/data/trialLogger/RATKNOBTASK_PNGfiles/[sessionDate]/[ratName]_[plotType].png
+% 
+% -------------------------------------------------------------------------
+% If you have the Parallel Computing Toolbox, this function will execute
+% 50-70% faster (runs in about 60% of the time) because we used a parfor()
+% on the most computationally intensive line of this function: loading the
+% trials inside selectedSessionsToTrials()
+% -------------------------------------------------------------------------
 
 %% Pull rat names for user to select
 function [] = analyzeTaskData(varargin)
@@ -24,7 +41,7 @@ ratNames = {ratDirAll.name}; % extract only rat names
 %%   Check for valid user inputs and initialize variables accordingly.   %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if nargin > 3 % check for excess user inputs
+if nargin > 4 % check for excess user inputs
     error('Too many input arguments. Try following examples in "help analyzTaskData"')
 elseif nargin == 0 % normal GUI function mode if no input argument
     try % instead of erroring, just try/catch if the wrong directory is selected
@@ -43,17 +60,20 @@ elseif nargin == 0 % normal GUI function mode if no input argument
 elseif nargin == 1
     ratString = unique(varargin{1}); % a string with 1st letter of each rat wanted
     numSessEachRat = 1;
-    pngEnable = 0; % PNG output disabled by default
+    plotStr = 'scat'; % scatter plot selected by default
+    pngFlag = 'nopng'; % PNG output disabled by default
     
 elseif nargin == 2
     ratString = unique(varargin{1}); % A string with 1st letter of each rat wanted
     numSessEachRat = varargin{2};
-    pngEnable = 0; % PNG output disabled by default
+    plotStr = 'scat'; % scatter plot selected by default
+    pngFlag = 'nopng'; % PNG output disabled by default
     
 elseif nargin == 3
     ratString = unique(varargin{1}); % a string with 1st letter of each rat wanted
     numSessEachRat = varargin{2};
-    pngEnable = varargin{3};
+    plotStr = varargin{3};
+    pngFlag = 'nopng'; % PNG output disabled by default
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -108,13 +128,13 @@ end
 
 plotcntr = 0; % plot loop counter initialize
 
-for ii=loopedRatNames' % loop through the chosen rat ID's
+for ratIdx=loopedRatNames' % loop through the chosen rat ID's
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%  Get the rat's data directories, sorted by date   %%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     modCntr = mod(plotcntr,numSessEachRat); % this will count proper number of trials per rat
     if modCntr==0 % check for first call of each rat (for efficiency we don't want to do these things on every single loop for the same rat)
-        subjdir = [basedir ratNames{ii} filesep]; % create a new string with the subject directory
+        subjdir = [basedir ratNames{ratIdx} filesep]; % create a new string with the subject directory
         subjectFolderDatesDirAll = dir(subjdir);
         subjectFolderDates = {subjectFolderDatesDirAll.name};
         [~,sortedDate_idx] = sort([subjectFolderDatesDirAll.datenum],'descend'); % get sorted idx's
@@ -175,7 +195,7 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
         [taskInput_idx, ~] = listdlg('PromptString', 'Select a task for this animal to analyze', 'SelectionMode', 'single', 'ListString', uniqueTaskMode, 'ListSize', [300 300]);
         validSessions = strcmp(uniqueTaskMode{taskInput_idx}, {taskMode(:).taskModeEnum});
         [sessionInput_idx, ~] = listdlg('PromptString', 'Select sessions to analyze', 'ListString', dateAndSaveTagString(validSessions),  'ListSize', [300 300]);
-        sessionTags = dateAndSaveTagString(validSessions);
+        sessionDateAndSaveTag = dateAndSaveTagString(validSessions);
         selectedTaskMode = taskMode(validSessions);
         selectedTaskMode = selectedTaskMode(sessionInput_idx);
         selectedSessions = {selectedTaskMode(:).path};
@@ -193,36 +213,46 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%     Choose analysis based on selected taskMode or User input      %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if flexMode
+    if flexMode == true
         sessionSaveTag = string(trials.trials(modCntr+1).saveTag);
-        sessionTags = [sessionDates{1} ' - SaveTag: ' char(sessionSaveTag)];
-        
-        cycleFlags(trials,0)
-        %ratScatter(trials, ratNames{ii}, sessionTags)
-    else
+        sessionDateTime = char(datetime(string(trials.trials(1).dateTimeTag), 'InputFormat', 'yyyyMMddHHmmss','Format', 'MM-dd-yyyy, HH:mm:ss'));
+        sessionDateTimeAndSaveTag = [sessionDateTime ' - SaveTag: ' char(sessionSaveTag)];
+        pngPath = [basedir(1:end-1) '_PNGfiles' filesep sessionDateTime(1:10) filesep];
+        switch plotStr
+            case 'scat'
+                ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
+            case 'cyc'
+                [~] = cycleFlags(trials,0);
+            case 'kine'
+                % Future feature. Will behave like cycleFlags, but will be of kinematics
+            case 'png'
+                ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
+            case 'all'
+            otherwise
+        end
+    elseif flexMode == false
         switch uniqueTaskMode{taskInput_idx}
             case 'LOWER_THRESHOLD'
                 trials = analyzeTurnAttempts(trials);
-                [trials, summary] = analyzeKnobTurn(trials, sessionTags(sessionInput_idx));
+                [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
                 plotKnobTurn(trials, summary);
             case 'LOWER_THRESHOLD_PERTURBATION'
                 trials = analyzeTurnAttempts(trials);
-                [trials, summary] = analyzeKnobTurn(trials, sessionTags(sessionInput_idx));
+                [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
                 plotKnobTurnPerturbation(trials, summary);
             case 3
             case {'KNOB_HOLD_CUED_TURN', 'KNOB_HOLD_RAND_TURN'}
-                
-                [trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
+                [trials, summary] = analyzeCuedTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
                 plot_cued_turn(trials, summary)
                 %[trials, summary] = analyzeKnobTurn(trials, sessionTags(sessionInput_idx));
                 %plotKnobTurn(trials, summary);
             case 'RAND_TURN_TWO_TARGETS'
-                %plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
+                %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionTags{sessionInput_idx})
                 %[trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
                 %plotHoldTurnViolin(trials, summary);
                 plot_rand_turn(trials, summary)
             case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
-                plotBadGoodTouches_1(trials, ratNames{ii}, sessionTags{sessionInput_idx})
+                plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
                 %plotDistribution(trials)
                 %plotBadTouches(trials)
                 %plotHoldPosMaxAnalysis(trials)
@@ -230,6 +260,7 @@ for ii=loopedRatNames' % loop through the chosen rat ID's
                 % trials = findHoldIdx(trials);
                 % summary = analyzeKnobHold(trials, sessionTags(sessionInput_idx)); % creates a session summary for the holding task % FZ commented on 190930
                 % plotHoldViolin(trials, summary); % creates plots for the holding task to analyze critical data % FZ commented on 190930
+            otherwise
         end
     end
     plotcntr = plotcntr + 1; % increment the counter

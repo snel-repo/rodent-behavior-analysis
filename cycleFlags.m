@@ -1,4 +1,4 @@
-function [allFailFlags]=cycleFlags(in,varargin)
+function [allTrialFlags]=cycleFlags(in,varargin)
 % [allFailFlags]=cycleFlags(in)  OR
 % [allFailFlags]=cycleFlags(in,trialFlag)
 %
@@ -33,32 +33,42 @@ end
 
 flagCellArrayIndex = find(flagStruct.flagsFound==trialFlag,1);
 
+%%%%%%%%%%%%%%%%%% CREATE FIGURE INSTANCE  %%%%%%%%%%%%%%%%%%%%%
+figName = 'Cycle Flags with Up/Down, Cycle Trials with Left/Right';
+figCheck = findobj('Type','Figure','Name',figName); % check if figure exists
+
+if ~isempty(figCheck)
+    close(figCheck) % close if it exists, to create new one below
+end
+
+fig = figure('units','normalized',... % create figure
+    'position',[.1 .05 .8 .8],...
+    'name',figName,...
+    'numbertitle','off',...
+    'keypressfcn',@keypress);
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% Start Event Structure %%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 while 1
     
     %%%%%%%%%%%%% CHECK FOR OUT OF BOUND INDECES %%%%%%%%%%%%%%%%%    
     if flagCellArrayIndex < 1
-        clf
-        msg = msgbox("You've gone too far to the left.",'Error','error');
-        waitforbuttonpress; if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
-        flagCellArrayIndex = flagCellArrayIndex -1; continue
-    elseif flagCellArrayIndex > numberOfUniqueTrialFlagsInSession
-        clf
-        msg = msgbox("You've gone too far to the right.",'Error','error');
-        waitforbuttonpress; if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
+        msg = msgbox("You are already viewing the first Trial Flag group.",'Error','error');
+        pause(1); if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
         flagCellArrayIndex = flagCellArrayIndex +1; continue
+    elseif flagCellArrayIndex > numberOfUniqueTrialFlagsInSession
+        msg = msgbox("You are already viewing the last Trial Flag group.",'Error','error');
+        pause(1);  if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
+        flagCellArrayIndex = flagCellArrayIndex -1; continue
     elseif trialIndex < 1
-        clf
-        msg = msgbox("You are already at the first trial.",'Error','error');
-        waitforbuttonpress; if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
+        msg = msgbox("You are already viewing the first Trial.",'Error','error');
+        pause(1);  if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
         trialIndex = trialIndex +1;
     elseif trialIndex > length(flagStruct.flagCellArray{flagCellArrayIndex})
-        clf
-        msg = msgbox("You are already at the last trial.",'Error','error');
-        waitforbuttonpress; if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
+        msg = msgbox("You are already viewing the last Trial.",'Error','error');
+        pause(1);  if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
         trialIndex = trialIndex -1; continue
     end
     
@@ -83,18 +93,7 @@ while 1
     rangeTouch = maxyTouch - minyTouch;
     minyKinematics = min(in.trials(indexOfTrialYouWantToView).pos);
     maxyKinematics = max(in.trials(indexOfTrialYouWantToView).pos);
-    rangeKine = maxyKinematics-minyKinematics;
-    
-    %%%%%%%%%%%%%%%%%% CREATE FIGURE INSTANCE  %%%%%%%%%%%%%%%%%%%%%
-    figCheck = get(groot,'CurrentFigure'); % check if figure exists
-    if isempty(figCheck)
-        fig = figure('units','normalized',... % create figure
-            'position',[0.05 0.05 0.8 0.8],...
-            'name','Cycle Through Flags with Up/Down, Trials with Left/Right',...
-            'numbertitle','off',...
-            'keypressfcn',@keypress);
-    end
-    
+    rangeKine = maxyKinematics-minyKinematics;    
     
     %%%%%%%%%%%%%%%%%%%%%% TOUCH STATUS %%%%%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,2);
@@ -148,9 +147,13 @@ while 1
     subplot(5,1,1);
     allFailFlags = [in.trials.flagFail];
     currentFailFlag=allFailFlags(indexOfTrialYouWantToView);
-%     allTrialFlags = allFailFlags
-    H = histogram(allFailFlags,[-1.5:1:19.5]); % define range of the histogram, includes -1 for catch trials
-    title('All Trial Flags this session, current Trial Flag highlighted')
+    if flagStruct.flagsFound(1) == -1 % if catch trials were found
+        allCatchIdx = flagStruct.flagCellArray{1};
+        allCatchVector = int8(zeros(1,length(allFailFlags)));
+        allCatchVector(allCatchIdx) = -1;
+        allTrialFlags = [int8(allFailFlags); allCatchVector]; % shows all flags, with catch trials marked in the second row
+    end
+    H = histogram(allTrialFlags,[-1.5:1:19.5]); % define range of the histogram, includes -1 for catch trials
     
     % highlight the fail flag that matches the current trial's category
     hilite = H.BinEdges(currentFailFlag+2:currentFailFlag+3); % offset (+2 and +3) adjusts indeces to align bin indeces with failFlag numbers)
@@ -159,36 +162,53 @@ while 1
     h_patch = patch(hilite, y, 'green', 'FaceAlpha', 0.5, 'LineStyle', ':');
     
     % same highlighting procedure for catch trials, if they exist
-    if flagStruct.flagsFound(1) == -1 % if catch trials were found
-        allCatchTrials = flagStruct.flagCellArray{1};
+    catchExist = logical(flagStruct.flagsFound(1) == -1);
+    numTrialsThisFlag = length(flagStruct.flagCellArray{flagCellArrayIndex});
+    if  catchExist && ismember(indexOfTrialYouWantToView,flagStruct.flagCellArray{1}) % if catch trials were found
         hilite = H.BinEdges(flagStruct.flagsFound(1)+2:flagStruct.flagsFound(1)+3);
         hilite = [hilite fliplr(hilite)];
         z = [0 0 repmat(H.Values(flagStruct.flagsFound(1)+2), 1, 2)];
         h_patch = patch(hilite, z, 'green', 'FaceAlpha', 0.5, 'LineStyle', ':');
     end
     
-    waitforbuttonpress % get user input (looks for arrow key presses)
+    ratName = string(upper(in.trials(1).subject));
+    % handle different titles, that flexibly change depending on user input
+    if catchExist && flagCellArrayIndex==1 % checks if catch trials are present, and if we are trying to look at them
+        title(strjoin([ratName ": Viewing Trial #" string(indexOfTrialYouWantToView) " [" string(trialIndex) "/" string(numTrialsThisFlag) "]" ", Viewing Flag Group: # -1, Catch Trial: YES"]))
+    else
+        title(strjoin([ratName ": Viewing Trial #" string(indexOfTrialYouWantToView) " [" string(trialIndex) "/" string(numTrialsThisFlag) "]" ", Viewing Flag Group: #" string(currentFailFlag) ", Catch Trial: NO"]))
+    end
+    
+    try
+        if get(fig, 'CurrentKey') ~= "escape"
+            waitforbuttonpress % get user input (looks for arrow key presses)
+        end
+    catch
+        disp(strjoin(["Exiting current session for" ratName]))
+        return
+    end
 end
 
     % subfunction for handling the keyboard inputs
     function [] = keypress(~,k) 
         switch k.Key
-            case 'uparrow'
+            case 'rightarrow'
                 trialIndex = trialIndex +1;
                 clf
-            case 'downarrow'
+            case 'leftarrow'
                 trialIndex = trialIndex -1;
                 clf
-            case 'leftarrow'
+            case 'downarrow'
                 trialIndex = 1;
                 flagCellArrayIndex = flagCellArrayIndex -1;
                 clf
-            case 'rightarrow'
+            case 'uparrow'
                 trialIndex = 1;
                 flagCellArrayIndex = flagCellArrayIndex +1;
                 clf
+            case 'escape'
+                close(fig)
             otherwise
-                clf
         end
     end
 end
