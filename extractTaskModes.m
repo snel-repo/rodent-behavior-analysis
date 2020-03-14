@@ -52,7 +52,7 @@ for i = 1 :length(in)
             case 4
                 taskModes(structIdx).taskModeEnum = 'KNOB_TOUCH_ASSOCIATION_NO_LED';
             case 5
-              %taskModes(structIdx).taskModeEnum = 'KNOB_TOUCH_ASSOCIATION_LED';
+                %taskModes(structIdx).taskModeEnum = 'KNOB_TOUCH_ASSOCIATION_LED';
                 taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_ASSO_NOMIN';
             case 6
                 taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_ASSOCIATION';
@@ -63,11 +63,13 @@ for i = 1 :length(in)
             case 9
                 taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_CONSOL';
             case 10
-              taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_RAND_TURN';
+                taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_RAND_TURN';
             case 11
-              taskModes(structIdx).taskModeEnum = 'RAND_TURN_TWO_TARGETS';
+                taskModes(structIdx).taskModeEnum = 'RAND_TURN_TWO_TARGETS';
             case 12
-              taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_AUTO_TURN';
+                taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_AUTO_TURN';
+            otherwise % sean added to define all possible cases - 3/13/20 
+                error('taskMode undefined')
         end
         structIdx = structIdx + 1;
     end

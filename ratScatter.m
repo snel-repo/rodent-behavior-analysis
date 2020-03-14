@@ -1,4 +1,4 @@
-function plotBadGoodTouches_1(in, name, session)
+function ratScatter(in, name, session)
 %keyboard
 
 %%

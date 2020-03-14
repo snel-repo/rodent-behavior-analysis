@@ -10,6 +10,7 @@ function [allFailFlags]=cycleFlags(in,varargin)
 %%%%%%%%%%%%%%%   INITIALIZE KNOWNS   %%%%%%%%%%%%%%%
 trialIndex = 1; % defaults to plotting data of the first trial
 [flagStruct] = makeFlagCellArray(in);
+numberOfUniqueTrialFlagsInSession = length(flagStruct.flagsFound);
 
 %%%%%%%%%%%%%%% HANDLE INITIAL INPUTS %%%%%%%%%%%%%%%
 if nargin>3
@@ -37,6 +38,29 @@ flagCellArrayIndex = find(flagStruct.flagsFound==trialFlag,1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 while 1
+    
+    %%%%%%%%%%%%% CHECK FOR OUT OF BOUND INDECES %%%%%%%%%%%%%%%%%    
+    if flagCellArrayIndex < 1
+        clf
+        msg = msgbox("You've gone too far to the left.",'Error','error');
+        waitforbuttonpress; if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
+        flagCellArrayIndex = flagCellArrayIndex -1; continue
+    elseif flagCellArrayIndex > numberOfUniqueTrialFlagsInSession
+        clf
+        msg = msgbox("You've gone too far to the right.",'Error','error');
+        waitforbuttonpress; if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
+        flagCellArrayIndex = flagCellArrayIndex +1; continue
+    elseif trialIndex < 1
+        clf
+        msg = msgbox("You are already at the first trial.",'Error','error');
+        waitforbuttonpress; if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
+        trialIndex = trialIndex +1;
+    elseif trialIndex > length(flagStruct.flagCellArray{flagCellArrayIndex})
+        clf
+        msg = msgbox("You are already at the last trial.",'Error','error');
+        waitforbuttonpress; if exist('msg','var'); close(msg); end % display error message until user input, then delete msgbox
+        trialIndex = trialIndex -1; continue
+    end
     
     %%%%%%%%%%%% GET ARRAY INDEX FOR SELECTED FLAG %%%%%%%%%%%%%%%
     if isempty(flagCellArrayIndex)
@@ -123,38 +147,48 @@ while 1
     %%%%%%%%%%%%%%%%%%%% FAIL FLAG HISTOGRAMS %%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,1);
     allFailFlags = [in.trials.flagFail];
-    currentFailFlag=allFailFlags(indexOfTrialYouWantToView) %intentionally displayed
-    H = histogram(allFailFlags,[-0.5:1:19.5]);
-    title('All fail codes from entire session, current fail code group highlighted')
-    uniqueFails = unique(allFailFlags); % get unique flags
-    hilite = H.BinEdges(currentFailFlag+1:currentFailFlag+2);
+    currentFailFlag=allFailFlags(indexOfTrialYouWantToView);
+%     allTrialFlags = allFailFlags
+    H = histogram(allFailFlags,[-1.5:1:19.5]); % define range of the histogram, includes -1 for catch trials
+    title('All Trial Flags this session, current Trial Flag highlighted')
+    
+    % highlight the fail flag that matches the current trial's category
+    hilite = H.BinEdges(currentFailFlag+2:currentFailFlag+3); % offset (+2 and +3) adjusts indeces to align bin indeces with failFlag numbers)
     hilite = [hilite fliplr(hilite)];
-    y = [0 0 repmat(H.Values(currentFailFlag+1), 1, 2)];
+    y = [0 0 repmat(H.Values(currentFailFlag+2), 1, 2)];
     h_patch = patch(hilite, y, 'green', 'FaceAlpha', 0.5, 'LineStyle', ':');
     
-    waitforbuttonpress
+    % same highlighting procedure for catch trials, if they exist
+    if flagStruct.flagsFound(1) == -1 % if catch trials were found
+        allCatchTrials = flagStruct.flagCellArray{1};
+        hilite = H.BinEdges(flagStruct.flagsFound(1)+2:flagStruct.flagsFound(1)+3);
+        hilite = [hilite fliplr(hilite)];
+        z = [0 0 repmat(H.Values(flagStruct.flagsFound(1)+2), 1, 2)];
+        h_patch = patch(hilite, z, 'green', 'FaceAlpha', 0.5, 'LineStyle', ':');
+    end
+    
+    waitforbuttonpress % get user input (looks for arrow key presses)
 end
 
     % subfunction for handling the keyboard inputs
     function [] = keypress(~,k) 
         switch k.Key
-            case 'rightarrow'
+            case 'uparrow'
                 trialIndex = trialIndex +1;
                 clf
-            case 'leftarrow'
+            case 'downarrow'
                 trialIndex = trialIndex -1;
                 clf
-            case 'downarrow'
+            case 'leftarrow'
                 trialIndex = 1;
                 flagCellArrayIndex = flagCellArrayIndex -1;
                 clf
-            case 'uparrow'
+            case 'rightarrow'
                 trialIndex = 1;
                 flagCellArrayIndex = flagCellArrayIndex +1;
                 clf
             otherwise
-                disp('Press up/down arrows to cycle through flags')
-                disp('Press L/R arrows to cycle through trials')
+                clf
         end
     end
 end
