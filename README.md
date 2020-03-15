@@ -5,13 +5,19 @@ The most useful function for analyzing and visualizing the rat data is analyzeTa
 You must provide the working directory for where the trial data is stored. 
 Default is '/snel/share/data/trialLogger/RATKNOBTASK/' stored in a basedir directory.
 
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
   Authors: Tony Corsten, Feng Zhu, and Sean O'Connell
+  
   Purpose: this is an automated analysis suite that takes rat name and
   pulls available tasks that rat has completed. You can then select one or
   multiple sessions to produce task-related results and plots.
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  Function Usage:0) analyzeTaskData() <-this will plot with traditional GUI
+  
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+    Function Usage:
+  
+                 0) analyzeTaskData() <-this will plot with traditional GUI
  
                  1) analyzeTaskData('xy') <-- for rats X and Y (default number of sessions is 1)
  
@@ -31,8 +37,10 @@ Default is '/snel/share/data/trialLogger/RATKNOBTASK/' stored in a basedir direc
   /snel/share/data/trialLogger/RATKNOBTASK_PNGfiles/[sessionDate]/[ratName]_[plotType].png
   
   -------------------------------------------------------------------------
-  If you have the Parallel Computing Toolbox, this function will execute
-  50-70% faster (runs in about 60% of the time) because we used a parfor()
-  on the most computationally intensive line of this function: loading the
-  trials inside selectedSessionsToTrials()
-  -------------------------------------------------------------------------
+  
+   If you have the Parallel Computing Toolbox, this function will execute
+   50-70% faster (runs in about 60% of the time) because we used a parfor()
+   on the most computationally intensive line of this function: loading the
+   trials inside selectedSessionsToTrials()
+   
+   -------------------------------------------------------------------------
