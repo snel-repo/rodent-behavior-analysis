@@ -102,8 +102,9 @@ xlabel('time (s)')
 axis tight
 title([ratName ' ' sessionDateTimeAndSaveTag])
 if ~strcmp(pngFlag,'nopng')
-saveas(f,[pngPath ratName '_scatter.png'],'png')
-close(f)
+    sessionTimeStamp = char(string(in.trials(1).dateTimeTag));
+    saveas(f,[pngPath ratName '_scatter_' sessionTimeStamp '.png'],'png')
+    close(f)
 end
 return;
 % %% plotting session details, aligned to trial Start

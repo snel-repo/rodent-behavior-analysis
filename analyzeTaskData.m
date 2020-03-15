@@ -22,13 +22,7 @@
 %
 % By default, PNGs are saved to:
 % /snel/share/data/trialLogger/RATKNOBTASK_PNGfiles/[sessionDate]/[ratName]_[plotType].png
-% 
-% -------------------------------------------------------------------------
-% If you have the Parallel Computing Toolbox, this function will execute
-% 50-70% faster (runs in about 60% of the time) because we used a parfor()
-% on the most computationally intensive line of this function: loading the
-% trials inside selectedSessionsToTrials()
-% -------------------------------------------------------------------------
+
 
 %% Pull rat names for user to select
 function [] = analyzeTaskData(varargin)
@@ -74,6 +68,11 @@ elseif nargin == 3
     numSessEachRat = varargin{2};
     plotStr = varargin{3};
     pngFlag = 'nopng'; % PNG output disabled by default
+elseif nargin == 4
+    ratString = unique(varargin{1}); % a string with 1st letter of each rat wanted
+    numSessEachRat = varargin{2};
+    plotStr = varargin{3};
+    pngFlag = varargin{4}; % PNG output disabled by default
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -215,7 +214,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if flexMode == true
         sessionSaveTag = string(trials.trials(modCntr+1).saveTag);
-        sessionDateTime = char(datetime(string(trials.trials(1).dateTimeTag), 'InputFormat', 'yyyyMMddHHmmss','Format', 'MM-dd-yyyy, HH:mm:ss'));
+        sessionDateTime = char(datetime(string(trials.trials(1).dateTimeTag), 'InputFormat', 'yyyyMMddHHmmss','Format', 'yyyy-MM-dd, HH:mm:ss'));
         sessionDateTimeAndSaveTag = [sessionDateTime ' - SaveTag: ' char(sessionSaveTag)];
         pngPath = [basedir(1:end-1) '_PNGfiles' filesep sessionDateTime(1:10) filesep];
         switch plotStr
@@ -226,6 +225,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
             case 'kine'
                 % Future feature. Will behave like cycleFlags, but will be of kinematics
             case 'png'
+                pngFlag = plotStr; % overwrite default 'nopng' value to 'png' so it will skip plotting and save the PNG
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'all'
             otherwise
