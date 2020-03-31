@@ -222,8 +222,13 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'cyc'
                 [~] = cycleFlags(trials,0);
-            case 'kine'
+            case 'kin'
                 % Future feature. Will behave like cycleFlags, but will be of kinematics
+                % You can add in the function below to test as step 1
+                % ratKinematics(trials)
+                
+                % then Later as step 2 you can add the below function with more input arguments:
+                % ratKinematics(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'png'
                 pngFlag = plotStr; % overwrite default 'nopng' value to 'png' so it will skip plotting and save the PNG
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
