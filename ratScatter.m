@@ -1,4 +1,5 @@
 function ratScatter(in, ratName, sessionDateTimeAndSaveTag, pngFlag, pngPath)
+pngPath = "/snel/home/jwang945/PNG_plots";
 
 allTouch = {};
 goodBadTouches = {};
