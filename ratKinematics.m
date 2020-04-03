@@ -1,5 +1,24 @@
-function ratKinematics(in, ratName, sessionDateTimeAndSaveTag, pngFlag, pngPath)
-pngPath = "/snel/home/jwang945/PNG_plots";
+%function ratKinematics(in, ratName, sessionDateTimeAndSaveTag, pngFlag, pngPath, failFlag)
+function ratKinematics(varargin)
+in = varargin{1};
+ratName = varargin{2};
+sessionDateTimeAndSaveTag = varargin{3};
+pngFlag = varargin{4};
+pngPath = varargin{5};
+%varargin{6} is an optional failFlag param that tells the function to plot
+%only the kinematics with that failFlag
+if (nargin == 6)
+    failFlag = varargin{6};
+else
+    failFlag = 16;
+end
+
+%-------------------------------------------------------------
+% CHANGE THIS TO YOUR PATH
+% or if you have snel/share permissions, just comment it out
+%pngPath = "/snel/home/jwang945/PNG_plots";
+%-------------------------------------------------------------
+
 %function plots the kinematics of all the trials in a session that have
 
 %variables to adjust if needed
@@ -18,6 +37,7 @@ if ~strcmp(pngFlag,'nopng')
     f = figure('visible','off','Name',"HoldPosMax Analysis " + ratName + " " + sessionDateTimeAndSaveTag);
     if ~exist(pngPath,'dir')
         mkdir(pngPath)
+        ! chmod 1777 <pngPath>
     end
 elseif strcmp(pngFlag,'nopng')
     f = figure('Name',"HoldPosMax Analysis " + ratName + " " + sessionDateTimeAndSaveTag);
@@ -41,7 +61,7 @@ for i = 1:numel(allTrials)
     state3End = find(state{i} == 3, 1, 'last');
     touchStatusModified{i} = touchStatus{i}(state3Start:state3End);
     
-    if (allTrials(i).flagFail == 16)  
+    if (allTrials(i).flagFail == failFlag && failFlag ~= 0)
        %want to align them to first touch
        firstTouch = find(touchStatusModified{i}, 1) + state3Start - 1;
        endOfHoldingPeriod = firstTouch + minHoldTime;
@@ -77,9 +97,8 @@ end
     
    if ~strcmp(pngFlag,'nopng')
     sessionTimeStamp = char(string(in.trials(1).dateTimeTag));
-    %fileName = char(strcat([pngPath ratName '_scatter_' sessionTimeStamp '.png']));
-    fileName = 'test.png';
-    fname = '/snel/home/jwang945/PNG_plots';
+    fileName = char(strcat(ratName(1), "_kine_", sessionTimeStamp,".png"));
+    fname = char(pngPath);
     saveas(f,fullfile(fname, fileName),'png')
     close(f)
    end

@@ -72,6 +72,7 @@ if ~strcmp(pngFlag,'nopng')
     f = figure('visible','off');
     if ~exist(pngPath,'dir')
         mkdir(pngPath)
+        ! chmod 1777 <pngPath>
     end
 elseif strcmp(pngFlag,'nopng')
     f = figure;

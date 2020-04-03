@@ -35,7 +35,7 @@ ratNames = {ratDirAll.name}; % extract only rat names
 %%   Check for valid user inputs and initialize variables accordingly.   %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if nargin > 4 % check for excess user inputs
+if nargin > 5 % check for excess user inputs
     error('Too many input arguments. Try following examples in "help analyzTaskData"')
 elseif nargin == 0 % normal GUI function mode if no input argument
     try % instead of erroring, just try/catch if the wrong directory is selected
@@ -73,16 +73,22 @@ elseif nargin == 4
     numSessEachRat = varargin{2};
     plotStr = varargin{3};
     pngFlag = varargin{4}; % PNG output disabled by default
+elseif nargin == 5 && strcmp(varargin{3}, 'kin')
+    ratString = unique(varargin{1}); % a string with 1st letter of each rat wanted
+    numSessEachRat = varargin{2};
+    plotStr = varargin{3};
+    pngFlag = varargin{4}; % PNG output disabled by default
+    failFlag = varargin{5};
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                    HANDLE FLEXIBLE USER INPUTS                        %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if nargin == 1 || nargin == 2 || nargin == 3 || nargin == 4
-    flexMode = true; % if 1, 2, 3, or 4 user inputs, flexible input mode flag
+if nargin == 1 || nargin == 2 || nargin == 3 || nargin == 4 || nargin == 5
+    flexMode = true; % if 1, 2, 3, 4, or 5 user inputs, flexible input mode flag
 end
 
-if flexMode % if 1, 2, 3, or 4 user inputs, flexible input mode
+if flexMode % if 1, 2, 3, 4, or 5 user inputs, flexible input mode
     
     numRatLetters = length(ratString);
     totalNumSess = numSessEachRat*numRatLetters;
@@ -226,7 +232,11 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 % Future feature. Will behave like cycleFlags, but will be of kinematics
                 % You can add in the function below to test as step 1
                 % ratKinematics(trials)
-                ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+                if nargin < 5
+                    ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+                else
+                    ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath, failFlag)
+                end
                 % then Later as step 2 you can add the below function with more input arguments:
                 % ratKinematics(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'png'
