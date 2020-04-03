@@ -93,11 +93,11 @@ for i = 1:numel(allTrials)
        end
     end
 end
-    legend('minHoldTime', 'holdPosMax', 'failFlag16Kinematics', 'failFlag0Kinematics', 'motorCurrentStart');
+    legend('minHoldTime', 'holdPosMax', char(strcat("failFlag",int2str(failFlag), "Kinematics")), 'failFlag0Kinematics', 'motorCurrentStart');
     
    if ~strcmp(pngFlag,'nopng')
     sessionTimeStamp = char(string(in.trials(1).dateTimeTag));
-    fileName = char(strcat(ratName(1), "_kine_", sessionTimeStamp,".png"));
+    fileName = char(strcat(ratName(1), "_kine_failFlag", int2str(failFlag),"_", sessionTimeStamp,".png"));
     fname = char(pngPath);
     saveas(f,fullfile(fname, fileName),'png')
     close(f)
