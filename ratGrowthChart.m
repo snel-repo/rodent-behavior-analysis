@@ -45,4 +45,7 @@ xlabel('Age (weeks)')
 ylabel('Weight (grams)')
 legend('Long-Evans Typical Growth','(+/-) 2 Std.','Predicted Weight (25 weeks)','Actual Weight (1st 10 days)','Location','northwest')
 grid minor
+
+figHandle = gcf;
+figHandle.Position = [10 10 750 850]; % left bottom width height
 end
