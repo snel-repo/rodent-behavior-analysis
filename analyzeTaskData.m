@@ -4,18 +4,18 @@
 % pulls available tasks that rat has completed. You can then select one or
 % multiple sessions to produce task-related results and plots.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Function Usage:0) analyzeTaskData() <-this will plot with traditional GUI
+% Usage:0) analyzeTaskData() <-this will enter GUI
 %
-%                1) analyzeTaskData('xy') <-- for rats X and Y (default number of sessions is 1)
+%   1) analyzeTaskData('xy') <-- for rats X and Y (default number of sessions is 1)
 %
-%                2) analyzeTaskData('ZX',numSessEachRat) <--for rats X and Z
+%   2) analyzeTaskData('ZX',numSessEachRat) <--for rats X and Z
 %
-%                3) analyzeTaskData('vwxy',numSessEachRat,plotStr) <--
-%                     --> plotStr can equal 'scat','kin','cyc', or 'png'
-%                         ^^^ set plotStr to 'png' to skip plotting and ^^^
-%                         generate png's of the default plot type (scatter)
+%   3) analyzeTaskData('vwxy',numSessEachRat,plotStr) <--
+%       --> plotStr can equal 'scat','kin','cyc', 'png', or 'noplot'
+%               ^^^ set plotStr to 'png' to skip plotting and ^^^
+%               generate png's of the default plot type (scatter)
 %
-%                4) analyzeTaskData(('xyz',numSessEachRat,plotStr,pngFlag)) <--
+%   4) analyzeTaskData(('xyz',numSessEachRat,plotStr,pngFlag)) <--
 %                     --> pngFlag can be set to 'png' this will create a
 %                         png in the appropriate folder for the selected
 %                         plot type (chosen with plotStr)
@@ -25,7 +25,7 @@
 
 
 %% Pull rat names for user to select
-function [] = analyzeTaskData(varargin)
+function [trials] = analyzeTaskData(varargin)
 
 basedir = '/snel/share/data/trialLogger/RATKNOBTASK/'; %removed folder selection GUI entirely - SeanOC
 ratDirAll = dir(basedir); % pull full directory of rat name information
@@ -44,7 +44,7 @@ elseif nargin == 0 % normal GUI function mode if no input argument
         fprintf('Failed to pull rat directories. Likely incorrect base directory selected.\n');
         return; % return control to user
     end
-    if isempty(raletInput_idx) % if cancel is selected instead of a rat, exit program
+    if isempty(ratInput_idx) % if cancel is selected instead of a rat, exit program
         fprintf('Exiting program.\n')
         return % return control to user
     end
@@ -218,12 +218,12 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%     Choose analysis based on selected taskMode or User input      %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if flexMode == true
+    if flexMode == true && ~strcmp(plotStr,'noplot')
         sessionSaveTag = string(trials.trials(modCntr+1).saveTag);
         sessionDateTime = char(datetime(string(trials.trials(1).dateTimeTag), 'InputFormat', 'yyyyMMddHHmmss','Format', 'yyyy-MM-dd, HH:mm:ss'));
         sessionDateTimeAndSaveTag = [sessionDateTime ' - SaveTag: ' char(sessionSaveTag)];
         pngPath = [basedir(1:end-1) '_PNGfiles' filesep sessionDateTime(1:10) filesep];
-        switch plotStr
+        switch plotStr 
             case 'scat'
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'cyc'
@@ -256,7 +256,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
                 plotKnobTurnPerturbation(trials, summary);
             case 3
-            case {'KNOB_HOLD_CUED_TURN', 'KNOB_HOLD_RAND_TURN'}
+            case {'KNOB_HOLD_RAND_TURN'} % Also 'KNOB_HOLD_CUED_TURN' can be added here
                 [trials, summary] = analyzeCuedTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
                 plot_cued_turn(trials, summary)
                 %[trials, summary] = analyzeKnobTurn(trials, sessionTags(sessionInput_idx));
@@ -266,12 +266,12 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 %[trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
                 %plotHoldTurnViolin(trials, summary);
                 plot_rand_turn(trials, summary)
-            case {'KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
-                %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
+            case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
+                plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
                 %plotDistribution(trials)
                 %plotBadTouches(trials)
                 %plotHoldPosMaxAnalysis(trials)
-                plotFailFlag16Overlay(trials)
+                %plotFailFlag16Overlay(trials)
                 % trials = findHoldIdx(trials);
                 % summary = analyzeKnobHold(trials, sessionTags(sessionInput_idx)); % creates a session summary for the holding task % FZ commented on 190930
                 % plotHoldViolin(trials, summary); % creates plots for the holding task to analyze critical data % FZ commented on 190930

@@ -1,5 +1,4 @@
 function ratScatter(in, ratName, sessionDateTimeAndSaveTag, pngFlag, pngPath)
-pngPath = "/snel/home/jwang945/PNG_plots";
 
 allTouch = {};
 goodBadTouches = {};
@@ -72,7 +71,7 @@ if ~strcmp(pngFlag,'nopng')
     f = figure('visible','off');
     if ~exist(pngPath,'dir')
         mkdir(pngPath)
-        ! chmod 1777 <pngPath>
+        !chmod 1777 <pngPath>
     end
 elseif strcmp(pngFlag,'nopng')
     f = figure;

@@ -152,6 +152,8 @@ while 1
         allCatchVector = int8(zeros(1,length(allFailFlags)));
         allCatchVector(allCatchIdx) = -1;
         allTrialFlags = [int8(allFailFlags); allCatchVector]; % shows all flags, with catch trials marked in the second row
+    else
+        allTrialFlags = int8(allFailFlags);
     end
     H = histogram(allTrialFlags,[-1.5:1:19.5]); % define range of the histogram, includes -1 for catch trials
     
@@ -192,17 +194,17 @@ end
     % subfunction for handling the keyboard inputs
     function [] = keypress(~,k) 
         switch k.Key
-            case 'rightarrow'
+            case 'uparrow'
                 trialIndex = trialIndex +1;
                 clf
-            case 'leftarrow'
+            case 'downarrow'
                 trialIndex = trialIndex -1;
                 clf
-            case 'downarrow'
+            case 'leftarrow'
                 trialIndex = 1;
                 flagCellArrayIndex = flagCellArrayIndex -1;
                 clf
-            case 'uparrow'
+            case 'rightarrow'
                 trialIndex = 1;
                 flagCellArrayIndex = flagCellArrayIndex +1;
                 clf
