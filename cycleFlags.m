@@ -34,7 +34,7 @@ end
 flagCellArrayIndex = find(flagStruct.flagsFound==trialFlag,1);
 
 %%%%%%%%%%%%%%%%%% CREATE FIGURE INSTANCE  %%%%%%%%%%%%%%%%%%%%%
-figName = 'Cycle Flags with Up/Down, Cycle Trials with Left/Right';
+figName = 'Cycle Flags with Left/Right, Cycle Trials with Up/Down';
 figCheck = findobj('Type','Figure','Name',figName); % check if figure exists
 
 if ~isempty(figCheck)
@@ -157,25 +157,27 @@ while 1
     end
     H = histogram(allTrialFlags,[-1.5:1:19.5]); % define range of the histogram, includes -1 for catch trials
     
-    % highlight the fail flag that matches the current trial's category
-    hilite = H.BinEdges(currentFailFlag+2:currentFailFlag+3); % offset (+2 and +3) adjusts indeces to align bin indeces with failFlag numbers)
-    hilite = [hilite fliplr(hilite)];
-    y = [0 0 repmat(H.Values(currentFailFlag+2), 1, 2)];
-    h_patch = patch(hilite, y, 'green', 'FaceAlpha', 0.5, 'LineStyle', ':');
-    
-    % same highlighting procedure for catch trials, if they exist
+    % highlight catch trial box, if this is a catch trial
     catchExist = logical(flagStruct.flagsFound(1) == -1);
     numTrialsThisFlag = length(flagStruct.flagCellArray{flagCellArrayIndex});
     if  catchExist && ismember(indexOfTrialYouWantToView,flagStruct.flagCellArray{1}) % if catch trials were found
         hilite = H.BinEdges(flagStruct.flagsFound(1)+2:flagStruct.flagsFound(1)+3);
         hilite = [hilite fliplr(hilite)];
         z = [0 0 repmat(H.Values(flagStruct.flagsFound(1)+2), 1, 2)];
-        h_patch = patch(hilite, z, 'green', 'FaceAlpha', 0.5, 'LineStyle', ':');
+        h_patch = patch(hilite, z, 'r', 'FaceAlpha', 0.5, 'LineStyle', ':', 'LineWidth', 1.5);
     end
+    
+    % highlight the fail flag that matches the current trial's category
+    hilite = H.BinEdges(currentFailFlag+2:currentFailFlag+3); % offset (+2 and +3) adjusts indeces to align bin indeces with failFlag numbers)
+    hilite = [hilite fliplr(hilite)];
+    y = [0 0 repmat(H.Values(currentFailFlag+2), 1, 2)];
+    h_patch = patch(hilite, y, 'green', 'FaceAlpha', 0.5, 'LineStyle', ':', 'LineWidth', 1.5);
     
     ratName = string(upper(in.trials(1).subject));
     % handle different titles, that flexibly change depending on user input
-    if catchExist && flagCellArrayIndex==1 % checks if catch trials are present, and if we are trying to look at them
+    if catchExist && ismember(indexOfTrialYouWantToView,flagStruct.flagCellArray{1}) && flagCellArrayIndex > 1 % checks if catch trials are present, and if we are trying to look at them
+        title(strjoin([ratName ": Viewing Trial #" string(indexOfTrialYouWantToView) " [" string(trialIndex) "/" string(numTrialsThisFlag) "]" ", Viewing Flag Group: #" string(currentFailFlag) ", Catch Trial: YES"]))
+    elseif catchExist && ismember(indexOfTrialYouWantToView,flagStruct.flagCellArray{1}) && flagCellArrayIndex == 1 % checks if catch trials are present, and if we are in the Catch Trial Flag Group
         title(strjoin([ratName ": Viewing Trial #" string(indexOfTrialYouWantToView) " [" string(trialIndex) "/" string(numTrialsThisFlag) "]" ", Viewing Flag Group: # -1, Catch Trial: YES"]))
     else
         title(strjoin([ratName ": Viewing Trial #" string(indexOfTrialYouWantToView) " [" string(trialIndex) "/" string(numTrialsThisFlag) "]" ", Viewing Flag Group: #" string(currentFailFlag) ", Catch Trial: NO"]))

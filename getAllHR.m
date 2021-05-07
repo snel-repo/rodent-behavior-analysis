@@ -1,5 +1,7 @@
 %%%%% need to finish this function: currently cannot do multiple sessions
 %%%%% for each rat
+%%%%%
+%%%%% inputNameStr is a string in the form of 'x', 'zabc', etc.
 function [] = getAllHR(inputNameStr,numSessions,catchTrialBoolean)
     cntr = 0;
     % cellArray = cell(length(inputNameStr),1);

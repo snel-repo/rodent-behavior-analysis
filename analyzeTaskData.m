@@ -41,7 +41,7 @@ elseif nargin == 0 % normal GUI function mode if no input argument
     try % instead of erroring, just try/catch if the wrong directory is selected
         [ratInput_idx,~] = listdlg('PromptString', 'Select a rat', 'SelectionMode', 'single', 'ListString', ratNames,  'ListSize', [300 300]); % prompt user to select a rat
     catch
-        fprintf('Failed to pull rat directories. Likely incorrect base directory selected.\n');
+        fprintf('Failed to pull rat directories. Likely need to mount drive (Turing), or base directory is wrong.\n');
         return; % return control to user
     end
     if isempty(ratInput_idx) % if cancel is selected instead of a rat, exit program
@@ -150,7 +150,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
     end
     if nargin == 0 % Original Mode
         sessionDates = sessionDates(1:2); % hardcoded, gets the entered # days worth of date files
-    elseif flexMode % Flex Mode , NEED TO COMMENT BELOW CODE BLOCK
+    elseif flexMode % Flex Mode , NEED TO ADD COMMENTS TO BELOW CODE BLOCK
         selectedDateFolder = [subjdir sessionDates{1} filesep '1'];
         if modCntr==0
             sessionsFromSelectedDateFolder = dir(selectedDateFolder);
@@ -209,7 +209,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
         %%%%%%%%%%%%%%       Flexible Input Mode with CLI      %%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%datetime(YourVector, 'ConvertFrom', 'yyyymmdd', 'Format','MM/dd/yyyy')%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     elseif flexMode % if 1, 2, or 3 user inputs, flexible input mode
-        selectedSessions = sessionsFound(modCntr+1);
+        selectedSessions = flip(sessionsFound(modCntr+1));
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -228,24 +228,19 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'cyc'
                 [~] = cycleFlags(trials,0);
-            case 'kin'
-                % Future feature. Will behave like cycleFlags, but will be of kinematics
-                % You can add in the function below to test as step 1
-                % ratKinematics(trials)
-                if nargin < 5
-                    ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-                else
-                    ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath, failFlag)
-                end
-                % then Later as step 2 you can add the below function with more input arguments:
-                % ratKinematics(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
+            case 'kin' % plot knob kinematics
+                ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'png'
                 pngFlag = plotStr; % overwrite default 'nopng' value to 'png' so it will skip plotting and save the PNG
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'all'
             otherwise
+                if strncmpi(plotStr,'kin',3)
+                    failFlag = str2double(plotStr(4:end)); % grab the fail flag suffix from something like "kin16" or "kin09"
+                    ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath, failFlag)
+                end
         end
-    elseif flexMode == false
+    elseif flexMode == false && ~strcmp(plotStr,'noplot')
         switch uniqueTaskMode{taskInput_idx}
             case 'LOWER_THRESHOLD'
                 trials = analyzeTurnAttempts(trials);
