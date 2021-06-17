@@ -125,7 +125,7 @@ if flexMode % if 1, 2, 3, 4, or 5 user inputs, flexible input mode
 end
 
 if isempty(chosenRat_idx)
-    error('Sorry, there was no rat folder match for the letters you provided')
+    error('Sorry, there was no rat folder match for the letters you provided. You may need to run "mountTuring" in a terminal.')
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                      EXTRACT RELEVANT TRIALS                          %%
@@ -240,7 +240,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                     ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath, failFlag)
                 end
         end
-    elseif flexMode == false && ~strcmp(plotStr,'noplot')
+    elseif flexMode == false
         switch uniqueTaskMode{taskInput_idx}
             case 'LOWER_THRESHOLD'
                 trials = analyzeTurnAttempts(trials);
@@ -262,6 +262,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 %plotHoldTurnViolin(trials, summary);
                 plot_rand_turn(trials, summary)
             case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
+                %ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
                 plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
                 %plotDistribution(trials)
                 %plotBadTouches(trials)

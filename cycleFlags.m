@@ -107,7 +107,8 @@ while 1
         ylim([minyTouch-(rangeTouch*0.1),maxyTouch+(rangeTouch*0.1)]);
     end
     title('Touch Capacitances with BaseLine')
-    legend('Exp. Mov. Ave.','BaseLine','Median Filtered')
+    leg = legend('Exp. Mov. Ave.','BaseLine','Median Filtered');
+    set(leg,'location','best')
     
     %%% Use below code if you want to plot the difference (BL - touchFilt)
     %dThresh=10; difference = baseLine-filtData; % define threshold, get difference array
@@ -119,6 +120,7 @@ while 1
     %%%%%%%%%%%%%%%%%%%%%% PLOT TRIAL STATE & MOTOR CURRENT %%%%%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
     title('Trial structure for this trial'); hold('on');
+    plot(in.trials(indexOfTrialYouWantToView).zeroVelFlag);
     
     % this is for plotting motor current
     currentStartIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent ~= 0,1);
@@ -129,9 +131,11 @@ while 1
         set(gca,'ycolor','magenta'); ylim([0,max(in.trials(indexOfTrialYouWantToView).motorCurrent)*1.1]);
         line([currentStartIndex currentStartIndex], [0 5],'Color','magenta');
         line([currentStopIndex currentStopIndex], [0 5],'Color','magenta');
-        legend('Trial State','Motor Current (mA)')
+        leg = legend('Trial State','Vel. Thresh. Cross','Motor Current (mA)');
+        set(leg,'location','best')
     else
-        legend('Trial State')
+        leg = legend('Trial State','Vel. Thresh. Cross');
+        set(leg,'location','best')
     end
     
     %%%%%%%%%%%%%%%%%%%%%% KINEMATICS %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +145,8 @@ while 1
     end
     title('Knob Kinematics, this trial');
     yyaxis right; plot(in.trials(indexOfTrialYouWantToView).velRaw)
-    legend('Postion (deg)','Velocity (deg/s)')
+    leg = legend('Postion (deg)','Velocity (deg/s)');
+    set(leg,'location','best')
     
     %%%%%%%%%%%%%%%%%%%% FAIL FLAG HISTOGRAMS %%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,1);

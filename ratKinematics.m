@@ -25,7 +25,7 @@ function ratKinematics(varargin)
 
     minHoldTimeMilliseconds = 100; % enter here in milliseconds
     minHoldTime = floor(minHoldTimeMilliseconds*0.5000)+2; % add two ticks for the Simulink model loop delay
-    holdPosMax = 20; % enter max degrees allowed during turn
+    holdPosMax = 10; % enter max degrees allowed during turn
 
     %only use 1 for now to plot one session
     session = in(1);
