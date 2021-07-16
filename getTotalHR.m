@@ -48,4 +48,3 @@ function [] = getTotalHR(inputNameStr,sessionNumberToday) %, catchTrialBoolean)
     
 %     fprintf("\nTotal s for rats %s, respectively:\n", inputNameStr)
 %     fprintf("%.3f\n", totalHRmatrix')
-end

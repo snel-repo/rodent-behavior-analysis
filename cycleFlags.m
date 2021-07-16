@@ -96,11 +96,11 @@ while 1
     rangeKine = maxyKinematics-minyKinematics;    
     
     %%%%%%%%%%%%%%%%%%%%%% TOUCH STATUS %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(5,1,2);
+    subplot(6,1,2);
     plot(in.trials(indexOfTrialYouWantToView).touchStatus); ylim([0,1.1]); title('Touch Status, this trial')
     
     %%%%%%%%%%%%%%%%%%%%%% TOUCH PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(5,1,3);
+    subplot(6,1,3);
     plot(filtData); hold on; plot(baseLine);
     plot(filtData_med,'color','k')
     if rangeTouch ~= 0
@@ -118,7 +118,7 @@ while 1
     %legend('EMA','BaseLine','BL - EMA','Threshold');
     
     %%%%%%%%%%%%%%%%%%%%%% PLOT TRIAL STATE & MOTOR CURRENT %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(5,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
+    subplot(6,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
     title('Trial structure for this trial'); hold('on');
     plot(in.trials(indexOfTrialYouWantToView).zeroVelFlag);
     
@@ -139,8 +139,8 @@ while 1
     end
     
     %%%%%%%%%%%%%%%%%%%%%% KINEMATICS %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(5,1,5); plot(in.trials(indexOfTrialYouWantToView).pos);
-    if rangeKine ~= 0
+    subplot(6,1,5); plot(in.trials(indexOfTrialYouWantToView).pos);
+    if rangeKine ~= 0 %trialFlag = 0;
         ylim([minyKinematics-(rangeKine*0.1),maxyKinematics+(rangeKine*0.1)]);
     end
     title('Knob Kinematics, this trial');
@@ -148,8 +148,14 @@ while 1
     leg = legend('Postion (deg)','Velocity (deg/s)');
     set(leg,'location','best')
     
+    %%%%%%%%%%%%%%%%%%%%% FORCE %%%%%%%%%%%%%%%%%%%%%
+    subplot(6,1,6)
+    plot(in.trials(indexOfTrialYouWantToView).forceRawX)
+    plot(in.trials(indexOfTrialYouWantToView).forceRawY)
+    plot(in.trials(indexOfTrialYouWantToView).forceRawZ)
+    
     %%%%%%%%%%%%%%%%%%%% FAIL FLAG HISTOGRAMS %%%%%%%%%%%%%%%%%%%%%%
-    subplot(5,1,1);
+    subplot(6,1,1);
     allFailFlags = [in.trials.flagFail];
     currentFailFlag=allFailFlags(indexOfTrialYouWantToView);
     if flagStruct.flagsFound(1) == -1 % if catch trials were found

@@ -48,7 +48,8 @@ elseif nargin == 0 % normal GUI function mode if no input argument
         fprintf('Exiting program.\n')
         return % return control to user
     end
-    totalNumSess=1; numSessEachRat=1; loopedRatNames=ratInput_idx; % allow original mode
+%   totalNumSess=1;
+    numSessEachRat=1; loopedRatNames=ratInput_idx; % allow original mode
     chosenRat_idx=0; flexMode = false; % disable flexible input mode
     
 elseif nargin == 1
@@ -78,7 +79,7 @@ elseif nargin == 5 && strcmp(varargin{3}, 'kin')
     numSessEachRat = varargin{2};
     plotStr = varargin{3};
     pngFlag = varargin{4}; % PNG output disabled by default
-    failFlag = varargin{5};
+%   failFlag = varargin{5};
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,7 +92,7 @@ end
 if flexMode % if 1, 2, 3, 4, or 5 user inputs, flexible input mode
     
     numRatLetters = length(ratString);
-    totalNumSess = numSessEachRat*numRatLetters;
+%   totalNumSess = numSessEachRat*numRatLetters;
     
     %collect ordered indexes for most recently edited rat folders
     [~,sortedRat_idx] = sort([ratDirAll.datenum],'descend');
@@ -149,7 +150,11 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
         sessionDates = subjectFolderDates(nonzeroValidSortedDate_idx);
     end
     if nargin == 0 % Original Mode
-        sessionDates = sessionDates(1:2); % hardcoded, gets the entered # days worth of date files
+        try
+            sessionDates = sessionDates(1:2); % hardcoded, gets the entered # days worth of date files
+        catch
+            sessionDates = sessionDates(1);
+        end
     elseif flexMode % Flex Mode , NEED TO ADD COMMENTS TO BELOW CODE BLOCK
         selectedDateFolder = [subjdir sessionDates{1} filesep '1'];
         if modCntr==0
@@ -218,11 +223,11 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%     Choose analysis based on selected taskMode or User input      %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    sessionSaveTag = string(trials.trials(modCntr+1).saveTag);
+    sessionDateTime = char(datetime(string(trials.trials(1).dateTimeTag), 'InputFormat', 'yyyyMMddHHmmss','Format', 'yyyy-MM-dd, HH:mm:ss'));
+    sessionDateTimeAndSaveTag = [sessionDateTime ' - SaveTag: ' char(sessionSaveTag)];
+    pngPath = [basedir(1:end-1) '_PNGfiles' filesep sessionDateTime(1:10) filesep];
     if flexMode == true && ~strcmp(plotStr,'noplot')
-        sessionSaveTag = string(trials.trials(modCntr+1).saveTag);
-        sessionDateTime = char(datetime(string(trials.trials(1).dateTimeTag), 'InputFormat', 'yyyyMMddHHmmss','Format', 'yyyy-MM-dd, HH:mm:ss'));
-        sessionDateTimeAndSaveTag = [sessionDateTime ' - SaveTag: ' char(sessionSaveTag)];
-        pngPath = [basedir(1:end-1) '_PNGfiles' filesep sessionDateTime(1:10) filesep];
         switch plotStr 
             case 'scat'
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
@@ -241,6 +246,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 end
         end
     elseif flexMode == false
+        pngFlag = 'nopng';
         switch uniqueTaskMode{taskInput_idx}
             case 'LOWER_THRESHOLD'
                 trials = analyzeTurnAttempts(trials);
@@ -262,8 +268,9 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 %plotHoldTurnViolin(trials, summary);
                 plot_rand_turn(trials, summary)
             case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
+                [~] = cycleFlags(trials,-1);
                 %ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-                plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
+                %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
                 %plotDistribution(trials)
                 %plotBadTouches(trials)
                 %plotHoldPosMaxAnalysis(trials)
