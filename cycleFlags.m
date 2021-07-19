@@ -81,35 +81,74 @@ while 1
     
     %%%%%%%%%%%%  GET FILTERED DATA  %%%%%%%%%%%%%%
     %%% get BOTH filter types for plotting
-    temporaryTouchFlag = 0; % get exponential moving average touch
-    [filtData, baseLine] = touchFiltVariableHandler(in,indexOfTrialYouWantToView,temporaryTouchFlag);
-    temporaryTouchFlag = 1; % also get median filtered touch
-    [filtData_med, ~] = touchFiltVariableHandler(in,indexOfTrialYouWantToView,temporaryTouchFlag);
-
+    try
+        temporaryTouchFlag = 0; % get exponential moving average touch
+        [filtData, baseLine] = touchFiltVariableHandler(in,indexOfTrialYouWantToView,temporaryTouchFlag);
+        temporaryTouchFlag = 1; % also get median filtered touch
+        [filtData_med, ~] = touchFiltVariableHandler(in,indexOfTrialYouWantToView,temporaryTouchFlag);
+        noTouchData = false;
+    catch
+        noTouchData = true;
+    end
     
     %%%%%%%%%%%%%%%% GET MINS AND MAXES FOR PLOTS %%%%%%%%%%%%%%%
-    minyTouch = min(min([filtData baseLine])); % get maxes and mins for ploting limits
-    maxyTouch = max(max([filtData baseLine]));
-    rangeTouch = maxyTouch - minyTouch;
+    %%% get maxes and mins for ploting limits
+    if noTouchData
+        forceRawNorm = sqrt( ... # get the norm of all forces
+                in.trials(indexOfTrialYouWantToView).forceRawX.^2 + ...
+                in.trials(indexOfTrialYouWantToView).forceRawY.^2 + ...
+                in.trials(indexOfTrialYouWantToView).forceRawZ.^2 ...
+                );
+        minyForce = min(min([ ...
+                            in.trials(indexOfTrialYouWantToView).forceRawX ...
+                            in.trials(indexOfTrialYouWantToView).forceRawY ... 
+                            in.trials(indexOfTrialYouWantToView).forceRawZ ...
+                            forceRawNorm
+                            ]));
+        maxyForce = max(max([ ...
+                            in.trials(indexOfTrialYouWantToView).forceRawX ...
+                            in.trials(indexOfTrialYouWantToView).forceRawY ...
+                            in.trials(indexOfTrialYouWantToView).forceRawZ ...
+                            forceRawNorm
+                            ]));
+        rangeForce = maxyForce - minyForce;
+    else
+        minyTouch = min(min([filtData baseLine])); % get maxes and mins for ploting limits
+        maxyTouch = max(max([filtData baseLine]));
+        rangeTouch = maxyTouch - minyTouch;
+    end
     minyKinematics = min(in.trials(indexOfTrialYouWantToView).pos);
     maxyKinematics = max(in.trials(indexOfTrialYouWantToView).pos);
     rangeKine = maxyKinematics-minyKinematics;    
     
     %%%%%%%%%%%%%%%%%%%%%% TOUCH STATUS %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(6,1,2);
+    subplot(5,1,2);
     plot(in.trials(indexOfTrialYouWantToView).touchStatus); ylim([0,1.1]); title('Touch Status, this trial')
     
-    %%%%%%%%%%%%%%%%%%%%%% TOUCH PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(6,1,3);
-    plot(filtData); hold on; plot(baseLine);
-    plot(filtData_med,'color','k')
-    if rangeTouch ~= 0
-        ylim([minyTouch-(rangeTouch*0.1),maxyTouch+(rangeTouch*0.1)]);
+    %%%%%%%%%%%%%%%%%%%%%% TOUCH (or FORCE) PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%
+    subplot(5,1,3);
+    if noTouchData
+        plot(in.trials(indexOfTrialYouWantToView).forceRawX); hold on;
+        plot(in.trials(indexOfTrialYouWantToView).forceRawY);
+        plot(in.trials(indexOfTrialYouWantToView).forceRawZ);    
+        plot(forceRawNorm,'LineWidth', 1, 'Color', [0.5, 0.5, 0.5, 0.5]);
+        if rangeForce~= 0
+            ylim([minyForce-(rangeForce*0.1),maxyForce+(rangeForce*0.1)]);
+        end
+        title('Rat Interaction Cartesian Forces')
+        leg = legend('L-R axis (X)','U-D axis (Y)','F-B axis (Z)','R^{3} Norm');
+        set(leg,'location','best')
+        ylabel('Force (mN)')
+    else
+        plot(filtData); hold on; plot(baseLine);
+        plot(filtData_med,'color','k')
+        if rangeTouch ~= 0
+            ylim([minyTouch-(rangeTouch*0.1),maxyTouch+(rangeTouch*0.1)]);
+        end
+        title('Touch Capacitances with BaseLine')
+        leg = legend('Exp. Mov. Ave.','BaseLine','Median Filtered');
+        set(leg,'location','best')
     end
-    title('Touch Capacitances with BaseLine')
-    leg = legend('Exp. Mov. Ave.','BaseLine','Median Filtered');
-    set(leg,'location','best')
-    
     %%% Use below code if you want to plot the difference (BL - touchFilt)
     %dThresh=10; difference = baseLine-filtData; % define threshold, get difference array
     %yyaxis right; plot(difference); % difference bet. baseline and touchFilt
@@ -118,7 +157,7 @@ while 1
     %legend('EMA','BaseLine','BL - EMA','Threshold');
     
     %%%%%%%%%%%%%%%%%%%%%% PLOT TRIAL STATE & MOTOR CURRENT %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(6,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
+    subplot(5,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
     title('Trial structure for this trial'); hold('on');
     plot(in.trials(indexOfTrialYouWantToView).zeroVelFlag);
     
@@ -128,6 +167,7 @@ while 1
     if ~isempty(currentStartIndex) || ~isempty(currentStopIndex) % make sure not empty
         % added this for motor current magnitude plotting
         yyaxis right; plot(in.trials(indexOfTrialYouWantToView).motorCurrent, 'Color', 'magenta')
+        ylabel('Motor Current (mA)')
         set(gca,'ycolor','magenta'); ylim([0,max(in.trials(indexOfTrialYouWantToView).motorCurrent)*1.1]);
         line([currentStartIndex currentStartIndex], [0 5],'Color','magenta');
         line([currentStopIndex currentStopIndex], [0 5],'Color','magenta');
@@ -139,23 +179,25 @@ while 1
     end
     
     %%%%%%%%%%%%%%%%%%%%%% KINEMATICS %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(6,1,5); plot(in.trials(indexOfTrialYouWantToView).pos);
+    subplot(5,1,5); plot(in.trials(indexOfTrialYouWantToView).pos);
     if rangeKine ~= 0 %trialFlag = 0;
         ylim([minyKinematics-(rangeKine*0.1),maxyKinematics+(rangeKine*0.1)]);
     end
     title('Knob Kinematics, this trial');
+    ylabel('Angle (Deg.)')
     yyaxis right; plot(in.trials(indexOfTrialYouWantToView).velRaw)
+    ylabel('Ang. Velocity (Deg./s)')
     leg = legend('Postion (deg)','Velocity (deg/s)');
     set(leg,'location','best')
     
-    %%%%%%%%%%%%%%%%%%%%% FORCE %%%%%%%%%%%%%%%%%%%%%
-    subplot(6,1,6)
-    plot(in.trials(indexOfTrialYouWantToView).forceRawX)
-    plot(in.trials(indexOfTrialYouWantToView).forceRawY)
-    plot(in.trials(indexOfTrialYouWantToView).forceRawZ)
+%     %%%%%%%%%%%%%%%%%%%%% FORCE %%%%%%%%%%%%%%%%%%%%%
+%     subplot(5,1,6)
+%     plot(in.trials(indexOfTrialYouWantToView).in.trials(indexOfTrialYouWantToView).forceRawX)
+%     plot(in.trials(indexOfTrialYouWantToView).in.trials(indexOfTrialYouWantToView).forceRawY)
+%     plot(in.trials(indexOfTrialYouWantToView).in.trials(indexOfTrialYouWantToView).forceRawZ)
     
     %%%%%%%%%%%%%%%%%%%% FAIL FLAG HISTOGRAMS %%%%%%%%%%%%%%%%%%%%%%
-    subplot(6,1,1);
+    subplot(5,1,1);
     allFailFlags = [in.trials.flagFail];
     currentFailFlag=allFailFlags(indexOfTrialYouWantToView);
     if flagStruct.flagsFound(1) == -1 % if catch trials were found
@@ -167,7 +209,15 @@ while 1
         allTrialFlags = int8(allFailFlags);
     end
     H = histogram(allTrialFlags,[-1.5:1:19.5]); % define range of the histogram, includes -1 for catch trials
-    
+    xticks([-1:1:20])
+    xlabel('Fail Flag #')
+    ylabel('Trial Count')
+    %     %%%%%%%%%%%%%%%%%%%%% FORCE %%%%%%%%%%%%%%%%%%%%%
+%     subplot(5,1,6)
+%     plot(in.trials(indexOfTrialYouWantToView).in.trials(indexOfTrialYouWantToView).forceRawX)
+%     plot(in.trials(indexOfTrialYouWantToView).in.trials(indexOfTrialYouWantToView).forceRawY)
+%     plot(in.trials(indexOfTrialYouWantToView).in.trials(indexOfTrialYouWantToView).forceRawZ)
+
     % highlight catch trial box, if this is a catch trial
     catchExist = logical(flagStruct.flagsFound(1) == -1);
     numTrialsThisFlag = length(flagStruct.flagCellArray{flagCellArrayIndex});

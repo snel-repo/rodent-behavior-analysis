@@ -11,7 +11,7 @@
 %   2) analyzeTaskData('ZX',numSessEachRat) <--for rats X and Z
 %
 %   3) analyzeTaskData('vwxy',numSessEachRat,plotStr) <--
-%       --> plotStr can equal 'scat','kin','cyc', 'png', or 'noplot'
+%       --> plotStr can equal 'scat','kin', 'force','cyc', 'png', or 'noplot'
 %               ^^^ set plotStr to 'png' to skip plotting and ^^^
 %               generate png's of the default plot type (scatter)
 %
@@ -238,6 +238,8 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
             case 'png'
                 pngFlag = plotStr; % overwrite default 'nopng' value to 'png' so it will skip plotting and save the PNG
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
+            case 'force'
+                ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'all'
             otherwise
                 if strncmpi(plotStr,'kin',3)
@@ -250,7 +252,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
         switch uniqueTaskMode{taskInput_idx}
             case 'LOWER_THRESHOLD'
                 trials = analyzeTurnAttempts(trials);
-                [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
+         ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)       [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
                 plotKnobTurn(trials, summary);
             case 'LOWER_THRESHOLD_PERTURBATION'
                 trials = analyzeTurnAttempts(trials);
@@ -268,7 +270,8 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 %plotHoldTurnViolin(trials, summary);
                 plot_rand_turn(trials, summary)
             case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
-                [~] = cycleFlags(trials,-1);
+                ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+                %[~] = cycleFlags(trials,-1);
                 %ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
                 %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
                 %plotDistribution(trials)
