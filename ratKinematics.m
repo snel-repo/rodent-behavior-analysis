@@ -106,7 +106,7 @@ function ratKinematics(varargin)
         currentStartIndex = find(allTrials(i).motorCurrent ~= 0,1);
 
         try
-            line([currentStartIndex-firstTouch currentStartIndex-firstTouch], [-holdPosMax-2 holdPosMax+2], 'Color', 'blue');
+            %line([currentStartIndex-firstTouch currentStartIndex-firstTouch], [-holdPosMax-2 holdPosMax+2], 'Color', 'blue');
         catch
         end
     end

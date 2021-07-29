@@ -164,7 +164,7 @@ while 1
     % this is for plotting motor current
     currentStartIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent ~= 0,1);
     currentStopIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent(currentStartIndex : end) == 0,1) + currentStartIndex - 2;
-    if ~isempty(currentStartIndex) || ~isempty(currentStopIndex) % make sure not empty
+    if ~isempty(currentStartIndex) && ~isempty(currentStopIndex) % make sure not empty
         % added this for motor current magnitude plotting
         yyaxis right; plot(in.trials(indexOfTrialYouWantToView).motorCurrent, 'Color', 'magenta')
         ylabel('Motor Current (mA)')

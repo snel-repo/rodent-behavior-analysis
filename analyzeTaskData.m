@@ -232,7 +232,14 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
             case 'scat'
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'cyc'
-                [~] = cycleFlags(trials,0);
+                allTrialFlags=0; iFlag=-1;
+                while(~allTrialFlags)
+                    try
+                        [allTrialFlags] = cycleFlags(trials,iFlag);
+                    catch
+                        iTrial = iTrial+1;
+                    end
+                end
             case 'kin' % plot knob kinematics
                 ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'png'
@@ -252,7 +259,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
         switch uniqueTaskMode{taskInput_idx}
             case 'LOWER_THRESHOLD'
                 trials = analyzeTurnAttempts(trials);
-         ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)       [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
+                [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
                 plotKnobTurn(trials, summary);
             case 'LOWER_THRESHOLD_PERTURBATION'
                 trials = analyzeTurnAttempts(trials);
@@ -271,7 +278,14 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 plot_rand_turn(trials, summary)
             case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
                 ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-                %[~] = cycleFlags(trials,-1);
+                 allTrialFlags=0; iFlag=-1;
+                while(~allTrialFlags)
+                    try
+                        [allTrialFlags] = cycleFlags(trials,iFlag);
+                    catch
+                        iFlag = iFlag+1;
+                    end
+                end
                 %ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
                 %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
                 %plotDistribution(trials)

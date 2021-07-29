@@ -32,6 +32,7 @@ deviation_ratio = average_input_deviation/average_longev_deviation;
 extrapolated_deviations = interp1(longevFemaleGrowthData_time_in_weeks,wistarFemaleGrowthData_grams_std, [first_ten_day_age_vector_weeks(1):endpoint_time],'linear','extrap');
 predicted_curve = interp1(longevFemaleGrowthData_time_in_weeks, longevFemaleGrowthData_grams,[first_ten_day_age_vector_weeks(1):endpoint_time],'linear','extrap') - extrapolated_deviations*deviation_ratio;
 
+figure;
 % plotting baselines and (+/-) 2 stds
 plot(longevFemaleGrowthData_time_in_weeks,longevFemaleGrowthData_grams,'k-','LineWidth',0.1); hold on
 plot(longevFemaleGrowthData_time_in_weeks,upper2std_curve,'r-','LineWidth',0.1)
