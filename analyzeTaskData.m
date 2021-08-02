@@ -212,7 +212,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%       Flexible Input Mode with CLI      %%%%%%%%%%%%%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%datetime(YourVector, 'ConvertFrom', 'yyyymmdd', 'Format','MM/dd/yyyy')%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     elseif flexMode % if 1, 2, or 3 user inputs, flexible input mode
         selectedSessions = flip(sessionsFound(modCntr+1));
     end
@@ -232,8 +232,8 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
             case 'scat'
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'cyc'
-                allTrialFlags=0; iFlag=-1;
-                while(~allTrialFlags)
+                allTrialFlags=0; iFlag=-1; % loop to check for flags that exist
+                while(~any(allTrialFlags))
                     try
                         [allTrialFlags] = cycleFlags(trials,iFlag);
                     catch
@@ -277,9 +277,9 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 %plotHoldTurnViolin(trials, summary);
                 plot_rand_turn(trials, summary)
             case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN'}
-                ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-                 allTrialFlags=0; iFlag=-1;
-                while(~allTrialFlags)
+                %ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+                allTrialFlags=0; iFlag=-1; % loop to check for flags that exist
+                while(~any(allTrialFlags))
                     try
                         [allTrialFlags] = cycleFlags(trials,iFlag);
                     catch

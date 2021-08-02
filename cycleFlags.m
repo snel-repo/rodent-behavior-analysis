@@ -41,10 +41,11 @@ if ~isempty(figCheck)
     close(figCheck) % close if it exists, to create new one below
 end
 
-fig = figure('units','pixels',... % create figure
-    'position',[100 100 1600 1000],...
-    'name',figName,...
-    'numbertitle','off',...
+% create figure
+fig = figure('units','normalized', ... % 'units','pixels','position',[100 100 1600 1000],...
+    'outerposition',[0 0 1 1], ...
+    'name',figName, ...
+    'numbertitle','off', ...
     'keypressfcn',@keypress);
 
 
@@ -124,6 +125,8 @@ while 1
     %%%%%%%%%%%%%%%%%%%%%% TOUCH STATUS %%%%%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,2);
     plot(in.trials(indexOfTrialYouWantToView).touchStatus); ylim([0,1.1]); title('Touch Status, this trial')
+    yticks([0,1])
+    ylabel("Boolean State")
     
     %%%%%%%%%%%%%%%%%%%%%% TOUCH (or FORCE) PLOTS %%%%%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,3);
@@ -137,7 +140,7 @@ while 1
         end
         title('Rat Interaction Cartesian Forces')
         leg = legend('L-R axis (X)','U-D axis (Y)','F-B axis (Z)','R^{3} Norm');
-        set(leg,'location','best')
+        set(leg,'location','northwest')
         ylabel('Force (mN)')
     else
         plot(filtData); hold on; plot(baseLine);
@@ -147,7 +150,7 @@ while 1
         end
         title('Touch Capacitances with BaseLine')
         leg = legend('Exp. Mov. Ave.','BaseLine','Median Filtered');
-        set(leg,'location','best')
+        set(leg,'location','northwest')
     end
     %%% Use below code if you want to plot the difference (BL - touchFilt)
     %dThresh=10; difference = baseLine-filtData; % define threshold, get difference array
@@ -159,23 +162,29 @@ while 1
     %%%%%%%%%%%%%%%%%%%%%% PLOT TRIAL STATE & MOTOR CURRENT %%%%%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
     title('Trial structure for this trial'); hold('on');
-    plot(in.trials(indexOfTrialYouWantToView).zeroVelFlag);
-    
+    plot(in.trials(indexOfTrialYouWantToView).zeroVelFlag); % can remove this later if desired. It indicates velocity threshold crossings
+    ylabel('State')
     % this is for plotting motor current
     currentStartIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent ~= 0,1);
     currentStopIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent(currentStartIndex : end) == 0,1) + currentStartIndex - 2;
-    if ~isempty(currentStartIndex) && ~isempty(currentStopIndex) % make sure not empty
+    if ~isempty(currentStartIndex) && ~isempty(currentStopIndex) % make sure motor current is not empty (i.e. motor-free trial)
         % added this for motor current magnitude plotting
-        yyaxis right; plot(in.trials(indexOfTrialYouWantToView).motorCurrent, 'Color', 'magenta')
+        yyaxis right; 
+        plot(in.trials(indexOfTrialYouWantToView).motorCurrent, 'Color', 'magenta')
+        try
+            plot(in.trials(indexOfTrialYouWantToView).currentMeasEscon*1000,'LineWidth',2, 'LineStyle','-', 'Color', [.1, .8, .1, .9]) % scale measured current to match mA
+            leg = legend('Trial State','Vel. Thresh. Cross','Motor Current Command','Measured Escon Current');
+        catch
+            leg = legend('Trial State','Vel. Thresh. Cross','Motor Current Command');
+        end
         ylabel('Motor Current (mA)')
         set(gca,'ycolor','magenta'); ylim([0,max(in.trials(indexOfTrialYouWantToView).motorCurrent)*1.1]);
-        line([currentStartIndex currentStartIndex], [0 5],'Color','magenta');
-        line([currentStopIndex currentStopIndex], [0 5],'Color','magenta');
-        leg = legend('Trial State','Vel. Thresh. Cross','Motor Current (mA)');
-        set(leg,'location','best')
+%         line([currentStartIndex currentStartIndex], [0 5],'Color','magenta');
+%         line([currentStopIndex currentStopIndex], [0 5],'Color','magenta');
+        set(leg,'location','northwest')
     else
         leg = legend('Trial State','Vel. Thresh. Cross');
-        set(leg,'location','best')
+        set(leg,'location','northwest')
     end
     
     %%%%%%%%%%%%%%%%%%%%%% KINEMATICS %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,12 +192,18 @@ while 1
     if rangeKine ~= 0 %trialFlag = 0;
         ylim([minyKinematics-(rangeKine*0.1),maxyKinematics+(rangeKine*0.1)]);
     end
-    title('Knob Kinematics, this trial');
     ylabel('Angle (Deg.)')
-    yyaxis right; plot(in.trials(indexOfTrialYouWantToView).velRaw)
-    ylabel('Ang. Velocity (Deg./s)')
-    leg = legend('Postion (deg)','Velocity (deg/s)');
-    set(leg,'location','best')
+    xlabel('Time (2ms ticks)')
+    yyaxis right; plot(in.trials(indexOfTrialYouWantToView).velRaw);
+    try
+        hold on; plot(in.trials(indexOfTrialYouWantToView).vel,'LineWidth',2,'LineStyle','-','Color',[0.80, 0.10, 0.040, 0.70]) % smoothed vel
+        ylabel('Ang. Velocity (Deg./s)')
+        leg = legend('Angle','Raw Angular Velocity', 'Smoothed Anglular Velocity');
+    catch
+         leg = legend('Postion (deg)','Velocity (deg/s)');
+    end
+    set(leg,'location','northwest')
+    title('Knob Kinematics, this trial');
     
 %     %%%%%%%%%%%%%%%%%%%%% FORCE %%%%%%%%%%%%%%%%%%%%%
 %     subplot(5,1,6)
@@ -198,15 +213,15 @@ while 1
     
     %%%%%%%%%%%%%%%%%%%% FAIL FLAG HISTOGRAMS %%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,1);
-    allFailFlags = [in.trials.flagFail];
+    allFailFlags = double([in.trials.flagFail]);
     currentFailFlag=allFailFlags(indexOfTrialYouWantToView);
     if flagStruct.flagsFound(1) == -1 % if catch trials were found
         allCatchIdx = flagStruct.flagCellArray{1};
-        allCatchVector = int8(zeros(1,length(allFailFlags)));
+        allCatchVector = nan(1,length(allFailFlags));
         allCatchVector(allCatchIdx) = -1;
-        allTrialFlags = [int8(allFailFlags); allCatchVector]; % shows all flags, with catch trials marked in the second row
+        allTrialFlags = [allFailFlags; allCatchVector]; % shows all flags, with catch trials marked in the second row
     else
-        allTrialFlags = int8(allFailFlags);
+        allTrialFlags = allFailFlags;
     end
     H = histogram(allTrialFlags,[-1.5:1:19.5]); % define range of the histogram, includes -1 for catch trials
     xticks([-1:1:20])
@@ -246,7 +261,12 @@ while 1
     
     try
         if get(fig, 'CurrentKey') ~= "escape"
-            waitforbuttonpress % get user input (looks for arrow key presses)
+            while true
+                input = waitforbuttonpress; % get user input
+                if input == 1 && any(strcmpi(get(fig, 'CurrentKey'),{'uparrow','downarrow','leftarrow','rightarrow','escape'})) % filter for arrow key presses and escape only
+                    break
+                end
+            end
         end
     catch
         disp(strjoin(["Exiting current session for" ratName]))
