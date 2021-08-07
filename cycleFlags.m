@@ -160,7 +160,7 @@ while 1
     %legend('EMA','BaseLine','BL - EMA','Threshold');
     
     %%%%%%%%%%%%%%%%%%%%%% PLOT TRIAL STATE & MOTOR CURRENT %%%%%%%%%%%%%%%%%%%%%%%%%
-    subplot(5,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
+    h4 = subplot(5,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
     title('Trial structure for this trial'); hold('on');
     plot(in.trials(indexOfTrialYouWantToView).zeroVelFlag); % can remove this later if desired. It indicates velocity threshold crossings
     ylabel('State')
@@ -172,7 +172,7 @@ while 1
         yyaxis right; 
         plot(in.trials(indexOfTrialYouWantToView).motorCurrent, 'Color', 'magenta')
         try
-            plot(in.trials(indexOfTrialYouWantToView).currentMeasEscon*1000,'LineWidth',2, 'LineStyle','-', 'Color', [.1, .8, .1, .9]) % scale measured current to match mA
+            plot(abs(1000*in.trials(indexOfTrialYouWantToView).currentMeasEscon),'LineWidth',2, 'LineStyle','-', 'Color', [.1, .8, .1, .9]) % scale measured current to match mA
             leg = legend('Trial State','Vel. Thresh. Cross','Motor Current Command','Measured Escon Current');
         catch
             leg = legend('Trial State','Vel. Thresh. Cross','Motor Current Command');
