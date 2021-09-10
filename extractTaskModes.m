@@ -68,6 +68,8 @@ for i = 1 :length(in)
                 taskModes(structIdx).taskModeEnum = 'RAND_TURN_TWO_TARGETS';
             case 12
                 taskModes(structIdx).taskModeEnum = 'KNOB_HOLD_AUTO_TURN';
+            case 20
+                taskModes(structIdx).taskModeEnum = 'FREE_SPIN';
             otherwise % sean added to define all possible cases - 3/13/20 
                 error('taskMode undefined')
         end
