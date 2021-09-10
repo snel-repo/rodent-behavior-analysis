@@ -29,7 +29,19 @@ function ratKinematics(varargin)
 
     %only use 1 for now to plot one session
     session = in(1);
-
+    
+    % get catch trial indexes
+%     allFailFlags = double([in.trials.flagFail]);
+    [flagStruct] = makeFlagCellArray(in);
+    if flagStruct.flagsFound(1) == -1 % if catch trials were found
+        allCatchIdx = flagStruct.flagCellArray{1};
+%         allCatchVector = nan(1,length(allFailFlags));
+%         allCatchVector(allCatchIdx) = -1;
+%         allTrialFlags = [allFailFlags; allCatchVector]; % shows all flags, with catch trials marked in the second row
+%     else
+%         allTrialFlags = allFailFlags;
+    end
+    
     %now have session, want to get all the trials in session
     allTrials = session.trials;
     %so, first make figure and subplots
@@ -87,23 +99,23 @@ function ratKinematics(varargin)
 %         end
 
         %if (allTrials(i).flagFail == failFlag && failFlag ~= 0)allTrials(i).flagFail
-        if failFlag == 255 % this allows plotting ALL fail flags if set to 255
+        if ismember(i,allCatchIdx) % failFlag == 255 % this allows plotting ALL fail flags if set to 255
             if (allTrials(i).flagFail == 0)
-                plot(kinematicsAligned{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
+                plot(kinematicsAligned{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4],'LineStyle','--');
             else
-                plot(kinematicsAligned{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
+                plot(kinematicsAligned{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4],'LineStyle','--');
             end
-        elseif failFlag >= 0 && failFlag < 255
+        else %elseif failFlag >= 0 && failFlag < 255
             if (allTrials(i).flagFail == 0)
                 plot(kinematicsAligned{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
-            elseif allTrials(i).flagFail == failFlag
+            else %allTrials(i).flagFail == failFlag
                 plot(kinematicsAligned{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
             end
         %elseif (allTrials(i).catchTrialFlag)
         %    plot(kinematicsAligned{i}, '--', 'Color', [0,0,0,0.4]);
         end    
 
-        currentStartIndex = find(allTrials(i).motorCurrent ~= 0,1);
+%         currentStartIndex = find(allTrials(i).motorCurrent ~= 0,1);
 
         try
             %line([currentStartIndex-firstTouch currentStartIndex-firstTouch], [-holdPosMax-2 holdPosMax+2], 'Color', 'blue');
@@ -119,7 +131,12 @@ function ratKinematics(varargin)
     L(2) = plot(nan, nan, 'LineWidth', 4, 'Color',[.8, .6, 0, 0.4]);
     L(3) = plot(nan, nan, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
     L(4) = plot(nan, nan, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
-    legend(L, {'End of Hold Period', 'Max Allowed Angle During Hold', 'Successful Kinematics', char(strcat("failFlag",string(failFlag), " Kinematics"))}); %, 'motorCurrentStart');
+    if flagStruct.flagsFound(1) == -1
+        L(5) = plot(nan, nan, 'LineWidth', 1, 'Color', [0, 0, 0, 1], 'LineStyle', '--');
+        legend(L, {'End of Hold Period', 'Max Allowed Angle During Hold', 'Successful Kinematics', char(strcat("failFlag",string(failFlag), " Kinematics")), 'Catch Trials'}); %, 'motorCurrentStart');
+    else
+        legend(L, {'End of Hold Period', 'Max Allowed Angle During Hold', 'Successful Kinematics', char(strcat("failFlag",string(failFlag), " Kinematics"))}); %, 'motorCurrentStart');
+    end
     if ~strcmp(pngFlag,'nopng')
         sessionTimeStamp = char(string(in.trials(1).dateTimeTag));
         fileName = char(strcat(ratName(1), "_kine_failFlag", string(failFlag),"_", sessionTimeStamp,".png"));

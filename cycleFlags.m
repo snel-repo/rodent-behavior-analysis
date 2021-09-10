@@ -120,7 +120,11 @@ while 1
     end
     minyKinematics = min(in.trials(indexOfTrialYouWantToView).pos);
     maxyKinematics = max(in.trials(indexOfTrialYouWantToView).pos);
-    rangeKine = maxyKinematics-minyKinematics;    
+    rangeKine = maxyKinematics-minyKinematics;
+    
+    minyMotorCurrent = min(min([in.trials(indexOfTrialYouWantToView).motorCurrent, 1000*in.trials(indexOfTrialYouWantToView).currentMeasEscon]));
+    maxyMotorCurrent = max(max([in.trials(indexOfTrialYouWantToView).motorCurrent, 1000*in.trials(indexOfTrialYouWantToView).currentMeasEscon]));
+    rangeMotorCurrent = maxyMotorCurrent-minyMotorCurrent;
     
     %%%%%%%%%%%%%%%%%%%%%% TOUCH STATUS %%%%%%%%%%%%%%%%%%%%%%%%%
     subplot(5,1,2);
@@ -160,25 +164,31 @@ while 1
     %legend('EMA','BaseLine','BL - EMA','Threshold');
     
     %%%%%%%%%%%%%%%%%%%%%% PLOT TRIAL STATE & MOTOR CURRENT %%%%%%%%%%%%%%%%%%%%%%%%%
-    h4 = subplot(5,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
+    subplot4 = subplot(5,1,4); plot(in.trials(indexOfTrialYouWantToView).state); ylim([0,max(in.trials(indexOfTrialYouWantToView).state)+1])
     title('Trial structure for this trial'); hold('on');
-    plot(in.trials(indexOfTrialYouWantToView).zeroVelFlag); % can remove this later if desired. It indicates velocity threshold crossings
+    try
+        plot(in.trials(indexOfTrialYouWantToView).lowVelCounterFlag); 
+    catch
+        plot(in.trials(indexOfTrialYouWantToView).zeroVelFlag); % can remove this later if desired. It indicates velocity threshold crossings
+    end
     ylabel('State')
     % this is for plotting motor current
-    currentStartIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent ~= 0,1);
-    currentStopIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent(currentStartIndex : end) == 0,1) + currentStartIndex - 2;
-    if ~isempty(currentStartIndex) && ~isempty(currentStopIndex) % make sure motor current is not empty (i.e. motor-free trial)
+%     currentStartIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent ~= 0,1);
+%     currentStopIndex = find(in.trials(indexOfTrialYouWantToView).motorCurrent(currentStartIndex : end) == 0,1) + currentStartIndex - 2;
+    if rangeMotorCurrent ~= 0 % make sure motor current is not empty (i.e. motor-free trial)
         % added this for motor current magnitude plotting
         yyaxis right; 
         plot(in.trials(indexOfTrialYouWantToView).motorCurrent, 'Color', 'magenta')
-        try
-            plot(abs(1000*in.trials(indexOfTrialYouWantToView).currentMeasEscon),'LineWidth',2, 'LineStyle','-', 'Color', [.1, .8, .1, .9]) % scale measured current to match mA
+        %try
+            plot(1000*in.trials(indexOfTrialYouWantToView).currentMeasEscon,'LineWidth',2, 'LineStyle','-', 'Color', [.1, .8, .1, .9]) % scale measured current to match mA
             leg = legend('Trial State','Vel. Thresh. Cross','Motor Current Command','Measured Escon Current');
-        catch
-            leg = legend('Trial State','Vel. Thresh. Cross','Motor Current Command');
-        end
+        %catch
+         %   leg = legend('Trial State','Vel. Thresh. Cross','Motor Current Command');
+        %end
+        ylim([minyMotorCurrent-(rangeMotorCurrent*0.1),maxyMotorCurrent+(rangeMotorCurrent*0.1)]);
+        
         ylabel('Motor Current (mA)')
-        set(gca,'ycolor','magenta'); ylim([0,max(in.trials(indexOfTrialYouWantToView).motorCurrent)*1.1]);
+        set(gca,'ycolor','magenta'); % ylim([0,max(in.trials(indexOfTrialYouWantToView).motorCurrent)*1.1]);
 %         line([currentStartIndex currentStartIndex], [0 5],'Color','magenta');
 %         line([currentStopIndex currentStopIndex], [0 5],'Color','magenta');
         set(leg,'location','northwest')
