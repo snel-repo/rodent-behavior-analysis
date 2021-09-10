@@ -237,7 +237,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                     try
                         [allTrialFlags] = cycleFlags(trials,iFlag);
                     catch
-                        iTrial = iTrial+1;
+                        iFlag = iFlag+1;
                     end
                 end
             case 'kin' % plot knob kinematics
@@ -286,7 +286,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                         iFlag = iFlag+1;
                     end
                 end
-                %ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+                ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
                 %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
                 %plotDistribution(trials)
                 %plotBadTouches(trials)
