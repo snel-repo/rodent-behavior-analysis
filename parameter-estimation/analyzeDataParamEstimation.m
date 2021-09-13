@@ -1,31 +1,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Authors: Tony Corsten, Feng Zhu, and Sean O'Connell
-% Purpose: this is an automated analysis suite that takes rat name and
-% pulls available tasks that rat has completed. You can then select one or
-% multiple sessions to produce task-related results and plots.
+% Authors: ...
+% Purpose: ...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Usage:0) analyzeTaskData() <-this will enter GUI
+% Usage:
+%   0) ...
 %
-%   1) analyzeTaskData('xy') <-- for rats X and Y (default number of sessions is 1)
-%
-%   2) analyzeTaskData('ZX',numSessEachRat) <--for rats X and Z
-%
-%   3) analyzeTaskData('vwxy',numSessEachRat,plotStr) <--
-%       --> plotStr can equal 'scat','kin', 'force','cyc', 'png', or 'noplot'
-%               ^^^ set plotStr to 'png' to skip plotting and ^^^
-%               generate png's of the default plot type (scatter)
-%
-%   4) analyzeTaskData(('xyz',numSessEachRat,plotStr,pngFlag)) <--
-%                     --> pngFlag can be set to 'png' this will create a
-%                         png in the appropriate folder for the selected
-%                         plot type (chosen with plotStr)
-%
-% By default, PNGs are saved to:
-% /snel/share/data/trialLogger/RATKNOBTASK_PNGfiles/[sessionDate]/[ratName]_[plotType].png
 
 
 %% Pull rat names for user to select
 function [trials] = analyzeTaskData(varargin)
+
+clear all
+close all
 
 basedir = '/snel/share/data/trialLogger/RATKNOBTASK/'; %removed folder selection GUI entirely - SeanOC
 ratDirAll = dir(basedir); % pull full directory of rat name information
@@ -128,6 +114,7 @@ end
 if isempty(chosenRat_idx)
     error('Sorry, there was no rat folder match for the letters you provided. You may need to run "mountTuring" in a terminal.')
 end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                      EXTRACT RELEVANT TRIALS                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,6 +122,7 @@ end
 plotcntr = 0; % plot loop counter initialize
 
 for ratIdx=loopedRatNames' % loop through the chosen rat ID's
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%  Get the rat's data directories, sorted by date   %%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -220,83 +208,169 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
     
     trials = selectedSessionsToTrials(selectedSessions);
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%     Plot relevant variables      %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    trial_cond = zeros(numel(trials.trials),1);
+    
+    % plot command current
+    figure()
+    for i = 1:numel(trials.trials)
+    
+        trial = trials.trials(i);
+        
+        mot_dir = double(2*trial.dirMotor)-1;
+        motorCurrent = mot_dir.*trial.motorCurrent;
+        
+        trial_cond(i) = motorCurrent(1500);
+        
+        %size(mot_dir)
+        %size(trial.motorCurrent)
+        
+        color_trial = [(40-trial_cond(i))/80,0,(trial_cond(i)+40)/80];
+        
+        plot(trial.trialData_time, motorCurrent, 'Color', color_trial);
+        hold on
+    
+    end
+    
+    
+    
+    % plot command current
+    figure()
+    for i = 1:numel(trials.trials)
+    
+        trial = trials.trials(i);
+        
+        color_trial = [(40-trial_cond(i))/80,0,(trial_cond(i)+40)/80];
+        
+        plot(trial.trialData_time, trial.currentMeasEscon, 'Color', color_trial)
+        hold on
+    
+    end
+    
+    % plot command current
+    figure()
+    for i = 1:numel(trials.trials)
+    
+        trial = trials.trials(i);
+        
+        color_trial = [(40-trial_cond(i))/80,0,(trial_cond(i)+40)/80];
+        
+        plot(trial.trialData_time, trial.currentMeasShunt, 'Color', color_trial)
+        hold on
+    
+    end
+    
+    
+    % plot acceleration velocity
+    figure()
+    for i = 1:numel(trials.trials)
+    
+        trial = trials.trials(i);
+        
+        color_trial = [(40-trial_cond(i))/80,0,(trial_cond(i)+40)/80];
+        
+        plot(trial.trialData_time, pi*trial.velRaw/180, 'Color', color_trial)
+        hold on
+    
+    end
+ 
+    % plot deceleration velocity
+    
+    decel_start = 2450;
+    
+    figure()
+    for i = 1:numel(trials.trials)
+    
+        trial = trials.trials(i);
+        
+        color_trial = [(40-trial_cond(i))/80,0,(trial_cond(i)+40)/80];
+        
+        plot(trial.trialData_time(decel_start:decel_start+50), pi*trial.velRaw(decel_start:decel_start+50)/180, 'Color', color_trial)
+        hold on
+    
+    end
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%     Choose analysis based on selected taskMode or User input      %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    sessionSaveTag = string(trials.trials(modCntr+1).saveTag);
-    sessionDateTime = char(datetime(string(trials.trials(1).dateTimeTag), 'InputFormat', 'yyyyMMddHHmmss','Format', 'yyyy-MM-dd, HH:mm:ss'));
-    sessionDateTimeAndSaveTag = [sessionDateTime ' - SaveTag: ' char(sessionSaveTag)];
-    pngPath = [basedir(1:end-1) '_PNGfiles' filesep sessionDateTime(1:10) filesep];
-    if flexMode == true && ~strcmp(plotStr,'noplot')
-        switch plotStr 
-            case 'scat'
-                ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
-            case 'cyc'
-                allTrialFlags=0; iFlag=-1; % loop to check for flags that exist
-                while(~any(allTrialFlags))
-                    try
-                        [allTrialFlags] = cycleFlags(trials,iFlag);
-                    catch
-                        iFlag = iFlag+1;
-                    end
-                end
-            case 'kin' % plot knob kinematics
-                ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-            case 'png'
-                pngFlag = plotStr; % overwrite default 'nopng' value to 'png' so it will skip plotting and save the PNG
-                ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
-            case 'force'
-                ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-            case 'all'
-            otherwise
-                if strncmpi(plotStr,'kin',3)
-                    failFlag = str2double(plotStr(4:end)); % grab the fail flag suffix from something like "kin16" or "kin09"
-                    ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath, failFlag)
-                end
-        end
-    elseif flexMode == false
-        pngFlag = 'nopng';
-        switch uniqueTaskMode{taskInput_idx}
-            case 'LOWER_THRESHOLD'
-                trials = analyzeTurnAttempts(trials);
-                [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
-                plotKnobTurn(trials, summary);
-            case 'LOWER_THRESHOLD_PERTURBATION'
-                trials = analyzeTurnAttempts(trials);
-                [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
-                plotKnobTurnPerturbation(trials, summary);
-            case 3
-            case {'KNOB_HOLD_RAND_TURN'} % Also 'KNOB_HOLD_CUED_TURN' can be added here
-                [trials, summary] = analyzeCuedTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
-                plot_cued_turn(trials, summary)
-                %[trials, summary] = analyzeKnobTurn(trials, sessionTags(sessionInput_idx));
-                %plotKnobTurn(trials, summary);
-            case 'RAND_TURN_TWO_TARGETS'
-                %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionTags{sessionInput_idx})
-                %[trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
-                %plotHoldTurnViolin(trials, summary);
-                plot_rand_turn(trials, summary)
-            case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN', 'FREE_SPIN'}
-                %ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-                allTrialFlags=0; iFlag=-1; % loop to check for flags that exist
-                while(~any(allTrialFlags))
-                    try
-                        [allTrialFlags] = cycleFlags(trials,iFlag);
-                    catch
-                        iFlag = iFlag+1;
-                    end
-                end
-                ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-                %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
-                %plotDistribution(trials)
-                %plotBadTouches(trials)
-                %plotHoldPosMaxAnalysis(trials)
-                %plotFailFlag16Overlay(trials)
-                % trials = findHoldIdx(trials);
-                % summary = analyzeKnobHold(trials, sessionTags(sessionInput_idx)); % creates a session summary for the holding task % FZ commented on 190930
-                % plotHoldViolin(trials, summary); % creates plots for the holding task to analyze critical data % FZ commented on 190930
-            otherwise
-        end
-    end
-    plotcntr = plotcntr + 1; % increment the counter
+%     sessionSaveTag = string(trials.trials(modCntr+1).saveTag);
+%     sessionDateTime = char(datetime(string(trials.trials(1).dateTimeTag), 'InputFormat', 'yyyyMMddHHmmss','Format', 'yyyy-MM-dd, HH:mm:ss'));
+%     sessionDateTimeAndSaveTag = [sessionDateTime ' - SaveTag: ' char(sessionSaveTag)];
+%     pngPath = [basedir(1:end-1) '_PNGfiles' filesep sessionDateTime(1:10) filesep];
+%     if flexMode == true && ~strcmp(plotStr,'noplot')
+%         switch plotStr 
+%             case 'scat'
+%                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
+%             case 'cyc'
+%                 allTrialFlags=0; iFlag=-1; % loop to check for flags that exist
+%                 while(~any(allTrialFlags))
+%                     try
+%                         [allTrialFlags] = cycleFlags(trials,iFlag);
+%                     catch
+%                         iFlag = iFlag+1;
+%                     end
+%                 end
+%             case 'kin' % plot knob kinematics
+%                 ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+%             case 'png'
+%                 pngFlag = plotStr; % overwrite default 'nopng' value to 'png' so it will skip plotting and save the PNG
+%                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
+%             case 'force'
+%                 ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+%             case 'all'
+%             otherwise
+%                 if strncmpi(plotStr,'kin',3)
+%                     failFlag = str2double(plotStr(4:end)); % grab the fail flag suffix from something like "kin16" or "kin09"
+%                     ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath, failFlag)
+%                 end
+%         end
+%     elseif flexMode == false
+%         pngFlag = 'nopng';
+%         switch uniqueTaskMode{taskInput_idx}
+%             case 'LOWER_THRESHOLD'
+%                 trials = analyzeTurnAttempts(trials);
+%                 [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
+%                 plotKnobTurn(trials, summary);
+%             case 'LOWER_THRESHOLD_PERTURBATION'
+%                 trials = analyzeTurnAttempts(trials);
+%                 [trials, summary] = analyzeKnobTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
+%                 plotKnobTurnPerturbation(trials, summary);
+%             case 3
+%             case {'KNOB_HOLD_RAND_TURN'} % Also 'KNOB_HOLD_CUED_TURN' can be added here
+%                 [trials, summary] = analyzeCuedTurn(trials, sessionDateAndSaveTag(sessionInput_idx));
+%                 plot_cued_turn(trials, summary)
+%                 %[trials, summary] = analyzeKnobTurn(trials, sessionTags(sessionInput_idx));
+%                 %plotKnobTurn(trials, summary);
+%             case 'RAND_TURN_TWO_TARGETS'
+%                 %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionTags{sessionInput_idx})
+%                 %[trials, summary] = analyzeCuedTurn(trials, sessionTags(sessionInput_idx));
+%                 %plotHoldTurnViolin(trials, summary);
+%                 plot_rand_turn(trials, summary)
+%             case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN', 'FREE_SPIN'}
+%                 %ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+%                 allTrialFlags=0; iFlag=-1; % loop to check for flags that exist
+%                 while(~any(allTrialFlags))
+%                     try
+%                         [allTrialFlags] = cycleFlags(trials,iFlag);
+%                     catch
+%                         iFlag = iFlag+1;
+%                     end
+%                 end
+%                 ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+%                 %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
+%                 %plotDistribution(trials)
+%                 %plotBadTouches(trials)
+%                 %plotHoldPosMaxAnalysis(trials)
+%                 %plotFailFlag16Overlay(trials)
+%                 % trials = findHoldIdx(trials);
+%                 % summary = analyzeKnobHold(trials, sessionTags(sessionInput_idx)); % creates a session summary for the holding task % FZ commented on 190930
+%                 % plotHoldViolin(trials, summary); % creates plots for the holding task to analyze critical data % FZ commented on 190930
+%             otherwise
+%         end
+%     end
+%     plotcntr = plotcntr + 1; % increment the counter
+
 end
