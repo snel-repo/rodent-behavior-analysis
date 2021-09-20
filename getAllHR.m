@@ -14,6 +14,13 @@ function [] = getAllHR(inputNameStr,sessionNumberToday,catchTrialBoolean)
 
         getHR(trials);
     
+        inputIdxRng = varargin{1};
+        subsetHitFlags = allHitFlags(inputIdxRng);
+        hitIdxs = subsetHitFlags(subsetHitFlags==1); numHits = length(hitIdxs);
+        %missIdxs = subsetHitFlags(subsetHitFlags==0); numMiss = length(missIdxs);
+        trialCount = length(subsetHitFlags);
+        HR = numHits/trialCount;
+        
         if catchTrialBoolean
             getHR(trials,findFlags(trials,-1));
         end

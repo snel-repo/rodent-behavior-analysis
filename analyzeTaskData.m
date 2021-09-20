@@ -247,6 +247,8 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 ratScatter(trials, ratNames{ratIdx}, sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'force'
                 ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+            case 'pert'
+                perturbationPlots(trials, ratNames(ratIdx), sessionDateTime, pngFlag, pngPath)
             case 'all'
             otherwise
                 if strncmpi(plotStr,'kin',3)
