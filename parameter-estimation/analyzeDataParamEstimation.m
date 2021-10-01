@@ -382,11 +382,12 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
         
         i_mot_i = trial.currentMeasShunt(accel_start_index(i):accel_end_index(i)-1);
         i_mot_i = i_mot_i - trial.currentMeasShunt(1);
+        i_mot_i = -i_mot_i;
 
 %         i_mot_i = trial.currentMeasEscon(accel_start_index(i):accel_end_index(i)-1);
 %         i_mot_i = i_mot_i - trial.currentMeasEscon(1);
         
-        vel_i = -1*pi*trial.velRaw(accel_start_index(i):accel_end_index(i))/180;
+        vel_i = pi*trial.velRaw(accel_start_index(i):accel_end_index(i))/180;
         accel_i = diff(vel_i)/ts;
         
         sign_fric_accel_i = -sign(vel_i(end))*ones(size(i_mot_i));
@@ -415,6 +416,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
         
         i_mot_i = trial.currentMeasShunt(decel_start_index(i):decel_end_index(i)-1);
         i_mot_i = i_mot_i - trial.currentMeasShunt(1);
+        i_mot_i = -i_mot_i;
         
 %         i_mot_i = trial.currentMeasEscon(decel_start_index(i):decel_end_index(i)-1);
 %         i_mot_i = i_mot_i - trial.currentMeasEscon(1);
@@ -423,7 +425,7 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
 %         plot(i_mot_i);
 %         hold on
         
-        vel_i = -1*pi*trial.velRaw(decel_start_index(i):decel_end_index(i))/180;
+        vel_i = pi*trial.velRaw(decel_start_index(i):decel_end_index(i))/180;
         decel_i = diff(vel_i)/ts;
         
         sign_fric_decel_i = -sign(vel_i(1))*ones(size(i_mot_i));

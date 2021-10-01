@@ -249,6 +249,8 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
             case 'pert'
                 perturbationPlots(trials, ratNames(ratIdx), sessionDateTime, pngFlag, pngPath)
+            case 'torq'
+                torquePlots(trials, ratNames(ratIdx), sessionDateTime, pngFlag, pngPath)
             case 'all'
             otherwise
                 if strncmpi(plotStr,'kin',3)
@@ -280,15 +282,21 @@ for ratIdx=loopedRatNames' % loop through the chosen rat ID's
                 plot_rand_turn(trials, summary)
             case {'KNOB_HOLD_CUED_TURN','KNOB_HOLD_ASSOCIATION', 'KNOB_HOLD_ASSO_NOMIN', 'KNOB_HOLD_CONSOL','KNOB_HOLD_AUTO_TURN', 'FREE_SPIN'}
                 %ratForces(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
-                allTrialFlags=0; iFlag=-1; % loop to check for flags that exist
-                while(~any(allTrialFlags))
-                    try
-                        [allTrialFlags] = cycleFlags(trials,iFlag);
-                    catch
-                        iFlag = iFlag+1;
-                    end
-                end
-                ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+                
+                %torquePlots(trials, ratNames(ratIdx), sessionDateTime, pngFlag, pngPath)
+                %%% cycleFlags section 
+%                 allTrialFlags=0; iFlag=-1; % loop to check for flags that exist
+%                 while(~any(allTrialFlags))
+%                     try
+%                         [allTrialFlags] = cycleFlags(trials,iFlag);
+%                     catch
+%                         iFlag = iFlag+1;
+%                     end
+%                 end
+                %%%
+                %ratKinematics(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+                ratAligned(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
+                %perturbationPlots(trials, ratNames(ratIdx), sessionDateTimeAndSaveTag, pngFlag, pngPath)
                 %plotBadGoodTouches_1(trials, ratNames{ratIdx}, sessionDateAndSaveTag{sessionInput_idx})
                 %plotDistribution(trials)
                 %plotBadTouches(trials)

@@ -84,7 +84,7 @@ function ratForces(varargin)
 %             forcesAligned{i} = allTrials(i).pos(firstTouch:endXForForce);
 %         catch
 %             try
-        forceAlignedX{i} = allTrials(i).forceRawX(firstTouch:lastTouchRelease);
+        forceAlignedX{i} = -allTrials(i).forceRawX(firstTouch:lastTouchRelease);
         forceAlignedZ{i} = allTrials(i).forceRawZ(firstTouch:lastTouchRelease);
         forceAlignedY{i} = -allTrials(i).forceRawY(firstTouch:lastTouchRelease);
 %             catch
@@ -95,16 +95,17 @@ function ratForces(varargin)
         %if (allTrials(i).flagFail == failFlag && failFlag ~= 0)allTrials(i).flagFail
         if failFlag == 255 % this allows plotting ALL fail flags if set to 255
             if (allTrials(i).flagFail == 0)
-                plot3(forceAlignedX{i},forceAlignedZ{i},forceAlignedY{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
+                plot3(forceAlignedX{i},forceAlignedZ{i},forceAlignedY{i}, 'LineWidth', 0.05, 'Color', [0, 0, 0, 0.4]);
             else
-                plot3(forceAlignedX{i},forceAlignedZ{i},forceAlignedY{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
+                %plot3(forceAlignedX{i},forceAlignedZ{i},forceAlignedY{i}, 'LineWidth', 0.025, 'Color', [.5, 0, 0, 0.4]);
             end
         elseif failFlag >= 0 && failFlag < 255
             if (allTrials(i).flagFail == 0)
-                plot3(forceAlignedX{i},forceAlignedZ{i},forceAlignedY{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
+                plot3(forceAlignedX{i},forceAlignedZ{i},forceAlignedY{i}, 'LineWidth', 0.05, 'Color', [0, 0, 0, 0.4]);
             elseif allTrials(i).flagFail == failFlag
-                plot3(forceAlignedX{i},forceAlignedZ{i},forceAlignedY{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
+                plot3(forceAlignedX{i},forceAlignedZ{i},forceAlignedY{i}, 'LineWidth', 0.025, 'Color', [.5, 0, 0, 0.4]);
             end
+        
         %elseif (allTrials(i).catchTrialFlag)
         %    plot(forcesAligned{i}, '--', 'Color', [0,0,0,0.4]);
         end    
@@ -123,6 +124,7 @@ function ratForces(varargin)
     % fix nasty legend
     L(1) = plot3(nan, nan, nan, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
     L(2) = plot3(nan, nan, nan, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
+    view([-15 45]); % set nice view angle
     legend(L, {'Successful Forces', char(strcat("failFlag",string(failFlag), " Forces"))}); %, 'motorCurrentStart');
     if ~strcmp(pngFlag,'nopng')
         sessionTimeStamp = char(string(in.trials(1).dateTimeTag));

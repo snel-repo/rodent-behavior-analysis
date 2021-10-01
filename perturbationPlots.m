@@ -95,36 +95,6 @@ function perturbationPlots(varargin)
 %                 kinematicsAligned{i} = allTrials(i).pos(firstTouch:end);
 %             end
 %         end
-
-        %if (allTrials(i).flagFail == failFlag && failFlag ~= 0)allTrials(i).flagFail
-        if ismember(i,allCatchIdx) % failFlag == 255 % this allows plotting ALL fail flags if set to 255
-            
-            subplot(2,1,1); hold('on');
-            
-            if (allTrials(i).flagFail == 0)
-                plot(trialTime{i}, kinematicsAligned{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
-            else
-                plot(trialTime{i}, kinematicsAligned{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
-            end
-        else %elseif failFlag >= 0 && failFlag < 255
-            
-            subplot(2,1,2); hold('on');
-            
-            if (allTrials(i).flagFail == 0)
-                plot(trialTime{i}, kinematicsAligned{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
-            else %allTrials(i).flagFail == failFlag
-                plot(trialTime{i}, kinematicsAligned{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
-            end
-        %elseif (allTrials(i).catchTrialFlag)
-        %    plot(kinematicsAligned{i}, '--', 'Color', [0,0,0,0.4]);
-        end    
-
-%         currentStartIndex = find(allTrials(i).motorCurrent ~= 0,1);
-
-        try
-            %line([currentStartIndex-firstTouch currentStartIndex-firstTouch], [-holdPosMax-2 holdPosMax+2], 'Color', 'blue');
-        catch
-        end
     end
 
     catchTrialIdxs = [allTrials.catchTrialFlag];
@@ -139,11 +109,25 @@ function perturbationPlots(varargin)
     HR_c = sum(hitCatchTrialsIdxs) / sum(catchTrialIdxs);
     HR_nc = sum(hitNonCatchTrialsIdxs) / sum(nonCatchTrialIdxs);
     
-    %set(gcf, 'Units', 'Normalized', 'OuterPosition', [0, 0.04, 1, 0.96]);
+    %% plot data
+
     set(gcf, 'OuterPosition', [10, 10, 1290, 1290]);
     
-    ax1 = subplot(2,1,1);
+    ax1 = subplot(2,1,1); hold('on');
     
+    subplot(2,1,1); 
+    
+    for i = 1:numel(allTrials)
+        %if (allTrials(i).flagFail == failFlag && failFlag ~= 0)allTrials(i).flagFail
+        if ismember(i,allCatchIdx) % failFlag == 255 % this allows plotting ALL fail flags if set to 255
+            if (allTrials(i).flagFail == 0)
+                plot(trialTime{i}, kinematicsAligned{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
+            else
+                plot(trialTime{i}, kinematicsAligned{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
+            end
+        end    
+    end
+
     xlabel('Time (ms)');
     ylabel('Angle (degrees)');
     title(strcat("(Catch trials) Kinematics for ", ratName, " for Session ", sessionDateTimeAndSaveTag, " - HR: ", string(HR_c)));
@@ -157,8 +141,20 @@ function perturbationPlots(varargin)
     L(3) = plot(nan, nan, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
     L(4) = plot(nan, nan, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
     legend(L, {'End of Hold Period', 'Max Allowed Angle During Hold', 'Successful Kinematics', char(strcat("failFlag",string(failFlag), " Kinematics"))}); %, 'motorCurrentStart');
+       
     
-    ax2 = subplot(2,1,2);
+    ax2 = subplot(2,1,2); hold('on');
+    
+    for i = 1:numel(allTrials)
+        %if (allTrials(i).flagFail == failFlag && failFlag ~= 0)allTrials(i).flagFail
+        if ~ismember(i,allCatchIdx) % failFlag == 255 % this allows plotting ALL fail flags if set to 255
+            if (allTrials(i).flagFail == 0)
+                plot(trialTime{i}, kinematicsAligned{i}, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
+            else
+                plot(trialTime{i}, kinematicsAligned{i}, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
+            end
+        end    
+    end
     
     xlabel('Time (ms)');
     ylabel('Angle (degrees)');
@@ -173,6 +169,7 @@ function perturbationPlots(varargin)
     L(3) = plot(nan, nan, 'LineWidth', 2, 'Color', [0, 0, 0, 0.4]);
     L(4) = plot(nan, nan, 'LineWidth', 1, 'Color', [.5, 0, 0, 0.4]);
     legend(L, {'End of Hold Period', 'Max Allowed Angle During Hold', 'Successful Kinematics', char(strcat("failFlag",string(failFlag), " Kinematics"))}); %, 'motorCurrentStart');
+
     
     linkaxes([ax1,ax2],'xy')
     
