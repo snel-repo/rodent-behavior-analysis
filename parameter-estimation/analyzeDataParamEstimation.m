@@ -8,118 +8,12 @@
 
 
 %% Pull rat names for user to select
-function [trials] = analyzeDataParamEstimation(varargin)
+function [trials] = paramEstimation(varargin)
 
 clear all
 close all
 
-basedir = '/snel/share/data/trialLogger/RATKNOBTASK/'; %removed folder selection GUI entirely - SeanOC
-ratDirAll = dir(basedir); % pull full directory of rat name information
-ratNames = {ratDirAll.name}; % extract only rat names
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%   Check for valid user inputs and initialize variables accordingly.   %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-if nargin > 5 % check for excess user inputs
-    error('Too many input arguments. Try following examples in "help analyzTaskData"')
-elseif nargin == 0 % normal GUI function mode if no input argument
-    try % instead of erroring, just try/catch if the wrong directory is selected
-        [ratInput_idx,~] = listdlg('PromptString', 'Select a rat', 'SelectionMode', 'single', 'ListString', ratNames,  'ListSize', [300 300]); % prompt user to select a rat
-    catch
-        fprintf('Failed to pull rat directories. Likely need to mount drive (Turing), or base directory is wrong.\n');
-        return; % return control to user
-    end
-    if isempty(ratInput_idx) % if cancel is selected instead of a rat, exit program
-        fprintf('Exiting program.\n')
-        return % return control to user
-    end
-%   totalNumSess=1;
-    numSessEachRat=1; loopedRatNames=ratInput_idx; % allow original mode
-    chosenRat_idx=0; flexMode = false; % disable flexible input mode
-    
-elseif nargin == 1
-    ratString = unique(varargin{1}); % a string with 1st letter of each rat wanted
-    numSessEachRat = 1;
-    plotStr = 'scat'; % scatter plot selected by default
-    pngFlag = 'nopng'; % PNG output disabled by default
-    
-elseif nargin == 2
-    ratString = unique(varargin{1}); % A string with 1st letter of each rat wanted
-    numSessEachRat = varargin{2};
-    plotStr = 'scat'; % scatter plot selected by default
-    pngFlag = 'nopng'; % PNG output disabled by default
-    
-elseif nargin == 3
-    ratString = unique(varargin{1}); % a string with 1st letter of each rat wanted
-    numSessEachRat = varargin{2};
-    plotStr = varargin{3};
-    pngFlag = 'nopng'; % PNG output disabled by default
-elseif nargin == 4
-    ratString = unique(varargin{1}); % a string with 1st letter of each rat wanted
-    numSessEachRat = varargin{2};
-    plotStr = varargin{3};
-    pngFlag = varargin{4}; % PNG output disabled by default
-elseif nargin == 5 && strcmp(varargin{3}, 'kin')
-    ratString = unique(varargin{1}); % a string with 1st letter of each rat wanted
-    numSessEachRat = varargin{2};
-    plotStr = varargin{3};
-    pngFlag = varargin{4}; % PNG output disabled by default
-%   failFlag = varargin{5};
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                    HANDLE FLEXIBLE USER INPUTS                        %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if nargin == 1 || nargin == 2 || nargin == 3 || nargin == 4 || nargin == 5
-    flexMode = true; % if 1, 2, 3, 4, or 5 user inputs, flexible input mode flag
-end
-
-if flexMode % if 1, 2, 3, 4, or 5 user inputs, flexible input mode
-    
-    numRatLetters = length(ratString);
-%   totalNumSess = numSessEachRat*numRatLetters;
-    
-    %collect ordered indexes for most recently edited rat folders
-    [~,sortedRat_idx] = sort([ratDirAll.datenum],'descend');
-    sortedRat_idx = sortedRat_idx'; % transpose sorted list to column
-    
-    matchedRat_idx = zeros(length(sortedRat_idx),1); % initialize
-    
-    % this nested loop checks the filename cell array for each starting letter requested
-    for ll = 1:numRatLetters
-        ratLetter = ratString(ll); cntr1 = 0; % reinitialize counter
-        nameMatches = zeros(length(sortedRat_idx),1); % reinitialize found matches array
-        for kk = sortedRat_idx' % this inner loop checks for matches with 1 letter
-            cntr1 = cntr1 + 1;
-            nameMatches(cntr1)=strncmpi(ratNames{kk},ratLetter,1); % find case insensitive first letter match indeces
-            if nameMatches(cntr1)
-                break % terminate string search when most recent match is found
-            end
-        end
-        % logical indexing/bitmasking & collecting indexes between loops by cum. summation
-        matchedRat_idx=matchedRat_idx+(sortedRat_idx.*nameMatches);
-    end
-    
-    chosenRat_idx = nonzeros(matchedRat_idx); % just get nonzero indexes of matched rat folders
-    numFoundMatches = length(chosenRat_idx);  % get number of these nonzero vals (matches)
-    
-    loopedRatNames = zeros(numFoundMatches*numSessEachRat,1);
-    for jj = 1:numFoundMatches % iterate only the number of found ratLetter matches
-        cntr2 = jj*numSessEachRat;
-        loopedRatNames(cntr2-numSessEachRat+1:cntr2)=chosenRat_idx(jj); % create array to iter through, repping each rat
-    end
-end
-
-if isempty(chosenRat_idx)
-    error('Sorry, there was no rat folder match for the letters you provided. You may need to run "mountTuring" in a terminal.')
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                      EXTRACT RELEVANT TRIALS                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-plotcntr = 0; % plot loop counter initialize
+load('freespin_data.mat');
 
 for ratIdx=loopedRatNames' % loop through the chosen rat ID's
     
