@@ -115,7 +115,7 @@ isaft = 50;
 
 
 % Position
-s12 = subplot(4,3,[1 2]); hold on
+s12 = subplot(4,2,1); hold on
 xline(0,'--', 'LineWidth', 1.5)
 for i = 1:length(d.trialTime)
     if d.validTrial{i} && d.conditionTrial{i} == cond
@@ -135,7 +135,7 @@ ylim(ylimsp)
 xlim(xlims2)
 
 % Velocity
-s22 = subplot(4,3,[4 5]); hold on
+s22 = subplot(4,2,4); hold on
 xline(0,'--', 'LineWidth', 1.5)
 for i = 1:length(d.trialTime)
     if d.validTrial{i} && d.conditionTrial{i} == cond

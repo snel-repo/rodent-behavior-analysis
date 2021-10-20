@@ -8,20 +8,20 @@
 
 
 %% Pull rat names for user to select
-function [trials] = analyzeDataParamEstimation()
+
 
     clear all
     close all
 
 
-    load('freespin_data.mat');
+    load('freespin_data2.mat');
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%                      EXTRACT RELEVANT TRIALS                          %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     
-    trials = t16
+    trials = t25
     currentParams = [-7.3126e-05, 0.1606]; %t16
     %currentParams = [-7.1327e-05, 0.1474]; %t25
     
@@ -189,11 +189,11 @@ function [trials] = analyzeDataParamEstimation()
     fc = 50;
     fs = 500;
     Wn = fc/(fs/2);
-    [b50,a50] = butter(2,Wn);
+    [b50,a50] = butter(3,Wn);
     fc = 100;
     fs = 500;
     Wn = fc/(fs/2);
-    [b100,a100] = butter(2,Wn);
+    [b100,a100] = butter(3,Wn);
     
     for i = 1:numel(trials.trials)
     
@@ -212,17 +212,19 @@ function [trials] = analyzeDataParamEstimation()
         i_mot_i = i_mot(accel_start_index(i)+1:accel_end_index(i)-1) - i_mot(1);
         %i_mot_i = -i_mot_i;
         
-        if length(i_mot_i) > 6
+        if length(i_mot_i) > 9
         
+            i_mot_i_nf = i_mot_i;
             i_mot_i = filtfilt(b100,a100,i_mot_i);
-
+            
 
              %i_mot_i = trial.currentMeasEscon(accel_start_index(i):accel_end_index(i)-1);
              %i_mot_i = i_mot_i - trial.currentMeasEscon(1);
 
             pos_i = pi*trial.pos(accel_start_index(i):accel_end_index(i))/180;
-            
+            %pos_i = filtfilt(b50,a50,pos_i);
             vel_i = diff(pos_i)/ts;
+            vel_i = filtfilt(b100,a100,vel_i);
             accel_i = diff(vel_i)/ts;
             accel_i = filtfilt(b100,a100,accel_i);
             
@@ -241,6 +243,7 @@ function [trials] = analyzeDataParamEstimation()
 
                 figure(1)
                 plot(i_mot_i);
+                plot(i_mot_i_nf,'k');
                 hold on
 
                 figure(2)
@@ -260,18 +263,20 @@ function [trials] = analyzeDataParamEstimation()
         i_mot_i = i_mot(decel_start_index(i)+1:decel_end_index(i)-1) - i_mot(1);
         %i_mot_i = -i_mot_i;
         
-        if length(i_mot_i) > 6
+        if length(i_mot_i) > 9
 
             i_mot_i = filtfilt(b100,a100,i_mot_i);
 
 
     %         i_mot_i = trial.currentMeasEscon(accel_start_index(i):accel_end_index(i)-1);
     %         i_mot_i = i_mot_i - trial.currentMeasEscon(1);
-
+            
             pos_i = pi*trial.pos(decel_start_index(i):decel_end_index(i))/180;
-            pos_i = filtfilt(b100,a100,pos_i);
+            %pos_i = filtfilt(b100,a100,pos_i)
             vel_i = diff(pos_i)/ts;
+            vel_i = filtfilt(b100,a100,vel_i);
             decel_i = diff(vel_i)/ts;
+            decel_i = filtfilt(b100,a100,decel_i);
             
     %         i_mot_i = trial.currentMeasEscon(decel_start_index(i):decel_end_index(i)-1);
     %         i_mot_i = i_mot_i - trial.currentMeasEscon(1);
@@ -364,14 +369,17 @@ function [trials] = analyzeDataParamEstimation()
     title('Measured v/s predicted acceleration, for deceleration trials (speed 50-0 rad/s)')
 
     T_in_accel = I_net*y_accel - k_mot*x_mot_accel - sign_fric_accel*[T_fri_mag_pos; T_fri_mag_neg];
+    T_in_accel = filtfilt(b100,a100,T_in_accel);
+    
     T_in_decel = I_net*y_decel - k_mot*x_mot_decel - sign_fric_decel*[T_fri_mag_pos; T_fri_mag_neg];
-
+    T_in_decel = filtfilt(b100,a100,T_in_decel);
+    
     figure()
     plot(T_in_accel,'Linewidth',1)
     %figure()
     hold on
     plot(T_in_decel,'Linewidth',1)
-    plot(0.036*0.02*ones(1,length(T_in_accel)),'k--','Linewidth',1)
+    plot(0.036*0.005*ones(1,length(T_in_accel)),'k--','Linewidth',1)
     hold on
     legend({'Accel. 0-50 rad/s','Decel. 50-0 rad/s','Motor torque at 20mA'});
     xlabel('Sample # (concatenated trials)') 
@@ -379,5 +387,3 @@ function [trials] = analyzeDataParamEstimation()
     title('Estimated external torque (should be 0)')    
     
     
-
-end

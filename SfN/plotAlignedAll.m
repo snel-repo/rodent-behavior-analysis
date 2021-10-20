@@ -5,6 +5,7 @@ function plotAlignedAll(trialTime, moveOnset, var, moveMax, cond1, cond2, plotIn
     conditionTrial = cell2mat(cond1);
     cmax = double(max(conditionTrial));
 
+    validTrial = cell2mat(cond2);
     
     
     %% combined plot
@@ -20,12 +21,12 @@ function plotAlignedAll(trialTime, moveOnset, var, moveMax, cond1, cond2, plotIn
         end
         t_offset = trialTime{i}(moveOnset{i});
         %if (allTrials(i).flagFail == failFlag && failFlag ~= 0)allTrials(i).flagFail
-        if length(t_offset)>0 % failFlag == 255 % this allows plotting ALL fail flags if set to 255
+        if length(t_offset)>0 && validTrial(i)==1 % failFlag == 255 % this allows plotting ALL fail flags if set to 255
             
             n = n+1;
             c = double(conditionTrial(i))/cmax;
             
-            plot(trialTime{i}(1:moveMax{i})-t_offset, scale*var{i}(1:moveMax{i}), 'LineWidth', 2, 'Color', [0, c, 1-c, 0.1]);
+            plot(trialTime{i}(1:moveMax{i})-t_offset, scale*var{i}(1:moveMax{i}), 'LineWidth', 2, 'Color', [0, c, 1-c, 0.5]);
         end    
     end
 
